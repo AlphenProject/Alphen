@@ -1,4 +1,4 @@
-﻿#include "spammers.h"
+#include "spammers.h"
 
 void spammers::clan_tag()
 {
@@ -27,16 +27,17 @@ void spammers::clan_tag()
     static auto time = -1;
 
     auto ticks = TIME_TO_TICKS(nci->GetAvgLatency(FLOW_OUTGOING)) + (float)m_globals()->m_tickcount; //-V807
-    auto intervals = 0.2f / m_globals()->m_intervalpertick;
+    auto intervals = 0.4f / m_globals()->m_intervalpertick;
 
     if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 0)
     {
+        intervals = 0.3f / m_globals()->m_intervalpertick;
+
         auto main_time = (int)(ticks / intervals) % 16;
 
         if (main_time != time && !m_clientstate()->iChokedCommands)
         {
             auto tag = crypt_str("");
-
             switch (main_time)
             {
             case 0:
@@ -96,6 +97,8 @@ void spammers::clan_tag()
     }
     else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 1)
     {
+        intervals = 0.35f / m_globals()->m_intervalpertick;
+
         auto main_time = (int)(ticks / intervals) % 28;
 
         if (main_time != time && !m_clientstate()->iChokedCommands)
@@ -198,6 +201,8 @@ void spammers::clan_tag()
 
         else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 2)
         {
+            intervals = 0.25f / m_globals()->m_intervalpertick;
+
             auto main_time = (int)(ticks / intervals) % 56;
 
             if (main_time != time && !m_clientstate()->iChokedCommands)
@@ -206,7 +211,7 @@ void spammers::clan_tag()
 
                 switch (main_time)
                 {
-                case 0: tag = crypt_str("                        "); break;
+                case 0: tag = crypt_str("n"); break;
                 case 1: tag = crypt_str("                       |"); break;
                 case 2: tag = crypt_str("                      "); break;
                 case 3: tag = crypt_str("                      N "); break;
@@ -260,8 +265,239 @@ void spammers::clan_tag()
                 case 51: tag = crypt_str("                         "); break;
                 case 52: tag = crypt_str("                        |"); break;
                 case 53: tag = crypt_str("                         "); break;
-                case 54: tag = crypt_str("                         "); break;
-                case 55: tag = crypt_str("                         "); break;
+                }
+
+                apply(tag);
+                time = main_time;
+            }
+            removed = false;
+            }
+
+        else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 3)
+        {
+            intervals = 0.25f / m_globals()->m_intervalpertick;
+
+            auto main_time = (int)(ticks / intervals) % 25;
+
+            if (main_time != time && !m_clientstate()->iChokedCommands)
+            {
+                auto tag = crypt_str("");
+
+                switch (main_time)
+                {
+                case 0:
+                    tag = crypt_str("n"); //>V1037
+                    break;
+                case 1:
+                    tag = crypt_str("ni"); //>V1037
+                    break;
+                case 2:
+                    tag = crypt_str("nix"); //>V1037
+                    break;
+                case 3:
+                    tag = crypt_str("nixw"); //>V1037
+                    break;
+                case 4:
+                    tag = crypt_str("nixw");
+                    break;
+                case 5:
+                    tag = crypt_str("nixwa"); //>V1037
+                    break;
+                case 6:
+                    tag = crypt_str("nixwar");
+                    break;
+                case 7:
+                    tag = crypt_str("nixware");
+                    break;
+                case 8:
+                    tag = crypt_str("nixware.");
+                    break;
+                case 9:
+                    tag = crypt_str("nixware.c");
+                    break;
+                case 10:
+                    tag = crypt_str("nixware.cc");
+                    break;
+                case 11:
+                    tag = crypt_str("n1xw4re.cc");
+                    break;
+                case 12:
+                    tag = crypt_str("n1xw@re.cc");
+                    break;
+                case 13:
+                    tag = crypt_str("n1xw4r3.cc");
+                    break;
+                case 14:
+                    tag = crypt_str("n1xw@re.cc");
+                    break;
+                case 15:
+                    tag = crypt_str("n1xw4re.cc");
+                    break;
+                case 16:
+                    tag = crypt_str("nixw@re.cc");
+                    break;
+                case 17:
+                    tag = crypt_str("nixware.c");
+                    break;
+                case 18:
+                    tag = crypt_str("nixware.");
+                    break;
+                case 19:
+                    tag = crypt_str("nixware");
+                    break;
+                case 20:
+                    tag = crypt_str("nixwar");
+                    break;
+                case 21:
+                    tag = crypt_str("nixwa");
+                    break;
+                case 22:
+                    tag = crypt_str("nixw");
+                    break;
+                case 23:
+                    tag = crypt_str("nix");
+                    break;
+                case 24:
+                    tag = crypt_str("ni");
+                    break;
+                }
+
+                apply(tag);
+                time = main_time;
+            }
+            removed = false;
+            }
+
+        else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 4)
+        {
+            intervals = 0.35f / m_globals()->m_intervalpertick;
+
+            auto main_time = (int)(ticks / intervals) % 21;
+
+            if (main_time != time && !m_clientstate()->iChokedCommands)
+            {
+                auto tag = crypt_str("");
+
+                switch (main_time)
+                {
+                case 1: { tag = crypt_str("  "); break; }
+                case 2: { tag = crypt_str(" ev "); break; }
+                case 3: { tag = crypt_str(" ev0 "); break; }
+                case 4: { tag = crypt_str(" ev0l "); break; }
+                case 5: { tag = crypt_str(" ev0lve "); break; }
+                case 6: { tag = crypt_str(" ev0lve. "); break; }
+                case 7: { tag = crypt_str(" ev0lve.x "); break; }
+                case 8: { tag = crypt_str(" ev0lve.xy "); break; }
+                case 9: { tag = crypt_str(" ev0lve.xyz "); break; }
+                case 10: { tag = crypt_str(" ev0lve.xyz "); break; }
+                case 11: { tag = crypt_str(" v0lve.xyz "); break; }
+                case 12: { tag = crypt_str(" 0lve.xyz "); break; }
+                case 13: { tag = crypt_str(" lve.xyz "); break; }
+                case 14: { tag = crypt_str(" ve.xyz "); break; }
+                case 15: { tag = crypt_str(" e.xyz "); break; }
+                case 16: { tag = crypt_str(" .xyz "); break; }
+                case 17: { tag = crypt_str(" xyz "); break; }
+                case 18: { tag = crypt_str(" yz "); break; }
+                case 19: { tag = crypt_str(" z "); break; }
+                case 20: { tag = crypt_str("  "); break; }
+                }
+
+                apply(tag);
+                time = main_time;
+            }
+            removed = false;
+            }
+
+        else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 5)
+        {
+            intervals = 0.4f / m_globals()->m_intervalpertick;
+
+            auto main_time = (int)(ticks / intervals) % 12;
+
+            if (main_time != time && !m_clientstate()->iChokedCommands)
+            {
+                auto tag = crypt_str("");
+
+                switch (main_time)
+                {
+                case 1: { tag = crypt_str("AIMWARE.net"); break; }
+                case 2: { tag = crypt_str("t AIMWARE.ne"); break; }
+                case 3: { tag = crypt_str("et AIMWARE.n"); break; }
+                case 4: { tag = crypt_str("E.net AIMWAR"); break; }
+                case 5: { tag = crypt_str("RE.net AIMWA"); break; }
+                case 6: { tag = crypt_str("ARE.net	AIMW"); break; }
+                case 7: { tag = crypt_str("WARE.net AIM"); break; }
+                case 8: { tag = crypt_str("MWARE.net AI"); break; }
+                case 9: { tag = crypt_str("IMWARE.net A"); break; }
+                case 10: { tag = crypt_str("AIMWARE.net"); break; }
+                case 11: { tag = crypt_str("AIMWARE.net"); break; }
+                }
+
+                apply(tag);
+                time = main_time;
+            }
+            removed = false;
+            }
+
+        else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 6)
+        {
+            intervals = 0.4f / m_globals()->m_intervalpertick;
+
+            auto main_time = (int)(ticks / intervals) % 11;
+
+            if (main_time != time && !m_clientstate()->iChokedCommands)
+            {
+                auto tag = crypt_str("");
+
+                switch (main_time)
+                {
+                case 1: { tag = crypt_str("onetap.su "); break; }
+                case 2: { tag = crypt_str("u onetap.s"); break; }
+                case 3: { tag = crypt_str("su onetap."); break; }
+                case 4: { tag = crypt_str(".su onetap"); break; }
+                case 5: { tag = crypt_str("p.su oneta"); break; }
+                case 6: { tag = crypt_str("ap.su onet"); break; }
+                case 7: { tag = crypt_str("tap.su one"); break; }
+                case 8: { tag = crypt_str("etap.su on"); break; }
+                case 9: { tag = crypt_str("netap.su o"); break; }
+                case 10: { tag = crypt_str("onetap.su "); break; }
+                }
+
+                apply(tag);
+                time = main_time;
+            }
+            removed = false;
+            }
+
+        else if (g_cfg.misc.clantag_spammer && g_cfg.misc.clantags_mode == 7)
+        {
+            intervals = 0.3f / m_globals()->m_intervalpertick;
+
+            auto main_time = (int)(ticks / intervals) % 18;
+
+            if (main_time != time && !m_clientstate()->iChokedCommands)
+            {
+                auto tag = crypt_str("");
+
+                switch (main_time)
+                {
+                case 1: { tag = crypt_str(" 〄 "); break; }
+                case 2: { tag = crypt_str("R>|〄 "); break; }
+                case 3: { tag = crypt_str("RA>|〄 "); break; }
+                case 4: { tag = crypt_str("R4W>|〄 "); break; }
+                case 5: { tag = crypt_str("RAWЭ>|〄 "); break; }
+                case 6: { tag = crypt_str("R4W3T>|〄 "); break; }
+                case 7: { tag = crypt_str("Я4WETRI>|〄 "); break; }
+                case 8: { tag = crypt_str("RAWETRIP>|〄 "); break; }
+                case 9: { tag = crypt_str("RAWETRIP<|〄 "); break; }
+                case 10: { tag = crypt_str("R4WETRI<|〄 "); break; }
+                case 11: { tag = crypt_str("RAWΣTR<|〄 "); break; }
+                case 12: { tag = crypt_str("R4W3T<|〄 "); break; }
+                case 13: { tag = crypt_str("RAWЭ<|〄 "); break; }
+                case 14: { tag = crypt_str("R4W<|〄 "); break; }
+                case 15: { tag = crypt_str("RA<|〄 "); break; }
+                case 16: { tag = crypt_str("R<|〄 "); break; }
+                case 17: { tag = crypt_str(" 〄 "); break; }
                 }
 
                 apply(tag);

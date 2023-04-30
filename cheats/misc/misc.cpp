@@ -1,4 +1,4 @@
-﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "misc.h"
@@ -37,8 +37,6 @@ bool draw_water_button(const char* label, const char* label_id, bool load, bool 
 	{
 		ImGui::SetNextItemWidth(min(g_ctx.gui.pop_anim, 0.01f) * ImGui::GetFrameHeight() * 1.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, g_ctx.gui.pop_anim);
-		ImGui::SetCursorPosX(8); ImGui::Text("Color"); ImGui::SameLine();
-		ImGui::ColorEdit(("##color"), &g_cfg.menu.menu_theme, ALPHA);
 		//draw_multicombo(crypt_str("Watermark additives"), g_cfg.menu.watermark_additives, watermark_adder, ARRAYSIZE(watermark_adder), c_menu::get().preview);
 		ImGui::PopStyleVar();
 		ImGui::EndPopup();
@@ -89,7 +87,7 @@ void misc::watermark()
 		watermark += crypt_str(" | no connection");
 	}
 
-	watermark += crypt_str(" | ") + std::to_string(g_ctx.globals.framerate) + crypt_str(" fps");
+	watermark += crypt_str(" | ") + std::to_string(g_ctx.globals.framerate) + crypt_str(" Fps");
 
 	ImGui::PushFont(c_menu::get().font);
 	auto size_text = ImGui::CalcTextSize(watermark.c_str());
@@ -129,7 +127,7 @@ void misc::watermark()
 
 		ImGui::SetCursorPos(ImVec2(s.x - 15, 5));
 		if (hooks::menu_open)
-			draw_water_button("+", "Swatermark_sett", false, false, NULL, false);
+			draw_water_button("color", "Swatermark_sett", false, false, NULL, false);
 
 	}
 	ImGui::End();

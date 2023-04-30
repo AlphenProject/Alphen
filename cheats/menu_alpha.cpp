@@ -1,4 +1,4 @@
-﻿#include <ShlObj_core.h>
+#include <ShlObj_core.h>
 #include <unordered_map>
 #include "menu_alpha.h"
 #include "../ImGui/code_editor.h"
@@ -982,7 +982,7 @@ void c_menu::draw(bool is_open)
 		ImGui::SetCursorPos(ImVec2{ 40, y - 20 });
 		ImGui::BeginChild("##footer", ImVec2{ x - 40, 20 }, false);
 		{
-			ImGui::Text(crypt_str("Alphen.cc | Beta-Test MultiHack For CS:GO"));
+			//ImGui::Text(crypt_str("Alphen.cc | Beta-Test MultiHack For CS:GO"));
 		}
 		ImGui::EndChild();
 
@@ -1253,7 +1253,7 @@ void c_menu::draw(bool is_open)
 								enabled_fakelag_triggers = true;
 
 						if (enabled_fakelag_triggers)
-							ImGui::SliderInt(crypt_str("Fake-lag limit"), &g_cfg.antiaim.triggers_fakelag_amount, 1, 21);					
+							ImGui::SliderInt(crypt_str("Fake-lag limit"), &g_cfg.antiaim.triggers_fakelag_amount, 1, 31);
 					}
 
 					
@@ -1955,7 +1955,7 @@ void c_menu::draw(bool is_open)
 						ImGui::TabName(crypt_str("Information"));
 
 						ImGui::Checkbox(crypt_str("Watermark"), &g_cfg.menu.watermark);
-						ImGui::Checkbox(crypt_str("Spectators list"), &g_cfg.misc.spectators_list);
+						ImGui::Checkbox(crypt_str("Spectator list"), &g_cfg.misc.spectators_list);
 						ImGui::Checkbox(crypt_str("Keybinds list"), &g_cfg.misc.keybinds);
 
 						draw_combo(crypt_str("Hitsound"), g_cfg.esp.hitsound, sounds, ARRAYSIZE(sounds));
@@ -2002,8 +2002,8 @@ void c_menu::draw(bool is_open)
 						if (ImGui::CustomButton(crypt_str("unlock hidden convars"), crypt_str("##GAME__UNLOCK"), ImVec2(260 * dpi_s, 28 * dpi_scale)))
 							misc::get().EnableHiddenCVars();
 
-						if (ImGui::CustomButton(crypt_str("RAGE QUIT!"), crypt_str("##RAGE_QUIT"), ImVec2(260 * dpi_s, 28 * dpi_scale)))
-							exit(0);
+						//if (ImGui::CustomButton(crypt_str("RAGE QUIT!"), crypt_str("##RAGE_QUIT"), ImVec2(260 * dpi_s, 28 * dpi_scale)))
+							//exit(0);
 					}
 					tab_end();
 

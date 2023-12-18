@@ -1045,6 +1045,50 @@ void player_t::SetupBones_AttachmentHelper()
 	return ((void(__thiscall*)(void*, void*))(pSetupBones_AttachmentHelper))(this, this->GetStudioHdr());
 }
 
+bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int mask)
+{
+	if (!this) //-V704
+		return false;
+
+	auto setuped = false;
+
+	auto backup_value = *(uint8_t*)((uintptr_t)this + 0x274);
+	*(uint8_t*)((uintptr_t)this + 0x274) = 0;
+
+	auto backup_effects = m_fEffects();
+	m_fEffects() |= 8;
+
+	auto animstate = get_animation_state();
+	auto previous_weapon = animstate ? animstate->m_pLastBoneSetupWeapon : nullptr;
+
+	if (previous_weapon)
+		animstate->m_pLastBoneSetupWeapon = animstate->m_pActiveWeapon;
+
+	auto backup_abs_origin = GetAbsOrigin();
+
+	if (this != g_ctx.local())
+		set_abs_origin(m_vecOrigin());
+
+	g_ctx.globals.setuping_bones = true;
+	invalidate_bone_cache();
+
+	SetupBones(matrix, matrix ? MAXSTUDIOBONES : -1, mask, m_flSimulationTime());
+
+
+	g_ctx.globals.setuping_bones = false;
+
+	if (this != g_ctx.local())
+		set_abs_origin(backup_abs_origin);
+
+	if (previous_weapon)
+		animstate->m_pLastBoneSetupWeapon = previous_weapon;
+
+	m_fEffects() = backup_effects;
+	*(uint8_t*)((uintptr_t)this + 0x274) = backup_value;
+
+	return setuped;
+}
+
 bool player_t::setup_bones_rebuilt(matrix3x4_t* matrix, int mask)
 {
 	if (!this)

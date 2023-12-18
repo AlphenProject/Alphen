@@ -8,7 +8,6 @@
 #include "utils\imports.h"
 #include "nSkinz\SkinChanger.h"
 #include "steam/steam_api.h"
-#include "DiscordRpc.h"
 
 
 
@@ -147,7 +146,6 @@ __forceinline void setup_netvars();
 __forceinline void setup_skins();
 __forceinline void setup_hooks();
 __forceinline void setup_steam();
-__forceinline void discord_main();
 
 __forceinline void setup_steam()
 {
@@ -162,14 +160,6 @@ __forceinline void setup_steam()
 	SteamUser = (ISteamUser*)SteamClient->GetISteamUser(hSteamUser, hSteamPipe, "SteamUser019");
 	SteamFriends = SteamClient->GetISteamFriends(hSteamUser, hSteamPipe, "SteamFriends015");
 	SteamUtils = SteamClient->GetISteamUtils(hSteamPipe, "SteamUtils009");
-}
-
-Discord* g_Discord;
-
-__forceinline void discord_main()
-{
-	g_Discord->Initialize();
-	g_Discord->Update();
 }
 
 DWORD WINAPI main(PVOID base)

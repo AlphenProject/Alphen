@@ -49,6 +49,9 @@ void fakelag::Fakelag(CUserCmd* m_pcmd)
 	if (m_gamerules()->m_bIsValveDS()) //-V807
 		max_choke = m_engine()->IsVoiceRecording() ? 1 : min(max_choke, 6);
 
+	if (tickbase::get().recharging_double_tap)
+		max_choke = g_ctx.globals.weapon->get_max_tickbase_shift();
+
 	if (g_ctx.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND && !m_gamerules()->m_bIsValveDS() && key_binds::get().get_key_bind_state(20)) //-V807
 	{
 		max_choke = 14;

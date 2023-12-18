@@ -208,47 +208,6 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 			if (g_cfg.player.enable && g_cfg.esp.kill_effect)
 				g_ctx.local()->m_flHealthShotBoostExpirationTime() = m_globals()->m_curtime + g_cfg.esp.kill_effect_duration;
 
-			if (g_cfg.esp.killsound)
-			{
-				auto headshot = event->GetBool(crypt_str("headshot"));
-
-				switch (g_ctx.globals.kills)
-				{
-				case 0:
-					m_surface()->PlaySound_(headshot ? crypt_str("kill2.wav") : crypt_str("kill1.wav"));
-					break;
-				case 1:
-					m_surface()->PlaySound_(crypt_str("kill3.wav"));
-					break;
-				case 2:
-					m_surface()->PlaySound_(crypt_str("kill4.wav"));
-					break;
-				case 3:
-					m_surface()->PlaySound_(crypt_str("kill5.wav"));
-					break;
-				case 4:
-					m_surface()->PlaySound_(crypt_str("kill6.wav"));
-					break;
-				case 5:
-					m_surface()->PlaySound_(crypt_str("kill7.wav"));
-					break;
-				case 6:
-					m_surface()->PlaySound_(crypt_str("kill8.wav"));
-					break;
-				case 7:
-					m_surface()->PlaySound_(crypt_str("kill9.wav"));
-					break;
-				case 8:
-					m_surface()->PlaySound_(crypt_str("kill10.wav"));
-					break;
-				default:
-					m_surface()->PlaySound_(crypt_str("kill11.wav"));
-					break;
-				}
-			}
-
-			g_ctx.globals.kills++;
-
 			std::string weapon_name = event->GetString(crypt_str("weapon"));
 			auto weapon = g_ctx.local()->m_hActiveWeapon().Get();
 
@@ -266,32 +225,9 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 
 		if (attacker_id == m_engine()->GetLocalPlayer() && user_id != m_engine()->GetLocalPlayer())
 		{
-			if (g_cfg.esp.hitsound && g_cfg.player.enable)
+			if (g_cfg.esp.hitsound)
 			{
-				switch (g_cfg.esp.hitsound)
-				{
-				case 1:
-					m_surface()->PlaySound_(crypt_str("metallic.wav"));
-					break;
-				case 2:
-					m_surface()->PlaySound_(crypt_str("cod.wav"));
-					break;
-				case 3:
-					m_surface()->PlaySound_(crypt_str("bubble.wav"));
-					break;
-				case 4:
-					m_surface()->PlaySound_(crypt_str("stapler.wav"));
-					break;
-				case 5:
-					m_surface()->PlaySound_(crypt_str("bell.wav"));
-					break;
-				case 6:
-					m_surface()->PlaySound_(crypt_str("flick.wav"));
-					break;
-				case 7:
-					m_surface()->PlaySound_(crypt_str("blaster.wav"));
-					break;
-				}
+				m_surface()->PlaySound_(crypt_str("flick.wav"));
 			}
 
 			auto entity = static_cast<player_t*>(m_entitylist()->GetClientEntity(user_id));

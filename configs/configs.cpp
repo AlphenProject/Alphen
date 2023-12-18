@@ -298,8 +298,7 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.esp.enemy_bullet_tracer_color, Color(255, 255, 255), crypt_str("Esp.enemy_bullet_tracer_color"));
 	setup_item(&g_cfg.esp.preserve_killfeed, false, crypt_str("Esp.preserve_killfeed"));
 	setup_item(&g_cfg.esp.hitmarker, 2, crypt_str("Esp.hit_marker"));
-	setup_item(&g_cfg.esp.hitsound, 0, crypt_str("Esp.hitsound"));
-	setup_item(&g_cfg.esp.killsound, false, crypt_str("Esp.killsound"));
+	setup_item(&g_cfg.esp.hitsound, false, crypt_str("Esp.hitsound"));
 	setup_item(&g_cfg.esp.damage_marker, false, crypt_str("Esp.damage_marker"));
 	setup_item(&g_cfg.esp.kill_effect, false, crypt_str("Esp.kill_effect"));
 	setup_item(&g_cfg.esp.kill_effect_duration, 3.0f, crypt_str("Esp.kill_effect_duration"));
@@ -393,9 +392,8 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.misc.auto_accept_matchmaking, false, crypt_str("Misc.auto_accept_matchmaking"));
 	setup_item(&g_cfg.misc.namespam, false, crypt_str("Misc.name_spam"));
 	setup_item(&g_cfg.misc.clantag_spammer, false, crypt_str("Misc.clantag_spammer"));
-	setup_item(&g_cfg.misc.clantags_mode, 0, crypt_str("Misc.clantags_mode"));
 	setup_item(&g_cfg.misc.aspect_ratio, false, crypt_str("Misc.aspect_ratio"));
-	setup_item(&g_cfg.misc.aspect_ratio_amount, 1.0f, crypt_str("Misc.aspect_ratio_amount"));
+	setup_item(&g_cfg.misc.aspect_ratio_amount, 0.0f, crypt_str("Misc.aspect_ratio_amount"));
 	setup_item(&g_cfg.misc.anti_screenshot, false, crypt_str("Misc.anti_screenshot"));
 	setup_item(&g_cfg.misc.anti_untrusted, true, crypt_str("Misc.antiuntrusted"));
 	setup_item(&g_cfg.misc.sv_pure_bypass, false, crypt_str("Misc.sv_pure_bypass"));
@@ -425,7 +423,6 @@ void C_ConfigManager::setup()
 		setup_item(&g_cfg.skins.custom_name_tag[i], crypt_str(""), std::to_string(i) + crypt_str("Skins.custom_name_tag"));
 	}
 
-	setup_item(&g_cfg.menu.obs_bypass, false, crypt_str("Menu.obs_bypass"));
 	setup_item(&g_cfg.menu.menu_theme, Color(126, 131, 219), crypt_str("Menu.menu_color"));
 	setup_item(&g_cfg.menu.watermark, true, crypt_str("Menu.watermark"));
 	setup_item(&g_cfg.menu.size_menu, 0, crypt_str("Menu.size_menu"));

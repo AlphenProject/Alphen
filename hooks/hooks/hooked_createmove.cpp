@@ -1,4 +1,4 @@
-﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "..\hooks.hpp"
@@ -221,8 +221,6 @@ void __stdcall test(int sequence_number, float input_sample_frametime, bool acti
 	engine_prediction::m_misc.m_bOverrideModifier = true;
 	engine_prediction::update();
 	engine_prediction::predict(m_pcmd, g_ctx.local());
-
-	local_animations::get().update_prediction_animations();
 
 	g_ctx.globals.eye_pos = g_ctx.local()->get_shoot_position();
 

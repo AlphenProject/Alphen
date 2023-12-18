@@ -1670,7 +1670,6 @@ void c_menu::draw(bool is_open)
 
 						ImGui::Checkbox(crypt_str("Rain"), &g_cfg.esp.rain);
 						ImGui::Checkbox(crypt_str("Full bright"), &g_cfg.esp.bright);
-						ImGui::Checkbox(crypt_str("Draw gray"), &g_cfg.esp.drawgray);
 
 						draw_combo(crypt_str("Skybox"), g_cfg.esp.skybox, skybox, ARRAYSIZE(skybox));
 

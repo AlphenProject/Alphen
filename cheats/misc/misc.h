@@ -67,7 +67,6 @@ public:
 	void PovArrows(player_t* e, Color color);
 
 	void FullBright();
-	void DrawGray();
 	void NightmodeFix();
 
 	void zeus_range();

@@ -61,6 +61,11 @@ void local_animations::run(ClientFrameStage_t stage)
 		g_ctx.local()->get_animlayers()[3].m_flCycle = 0.0f;
 		g_ctx.local()->get_animlayers()[12].m_flWeight = 0.0f;
 
+		if (!(g_ctx.local()->m_fFlags() & !FL_ONGROUND))
+		{
+			g_ctx.local()->m_flPoseParameter()[12] = 0;
+		}
+
 		update_fake_animations();
 		update_local_animations(animstate);
 	}
@@ -113,7 +118,7 @@ void local_animations::update_fake_animations()
 		local_data.animstate->m_flHeadHeightOrOffsetFromHittingGroundAnimation = 1.0f;
 
 		g_ctx.local()->invalidate_bone_cache();
-		g_ctx.local()->setup_bones_rebuilt(g_ctx.globals.fake_matrix, BONE_USED_BY_ANYTHING);
+		g_ctx.local()->setup_bones_fixed(g_ctx.globals.fake_matrix, BONE_USED_BY_ANYTHING);
 
 		local_data.visualize_lag = g_cfg.player.visualize_lag;
 
@@ -180,7 +185,7 @@ void local_animations::update_local_animations(c_baseplayeranimationstate* anims
 	g_ctx.local()->set_abs_angles(Vector(0, abs_angles, 0));
 	g_ctx.local()->set_abs_origin(g_ctx.local()->m_vecOrigin());
 	g_ctx.local()->set_abs_velocity(g_ctx.local()->m_vecAbsVelocity());
-	local->setup_bones_rebuilt(g_ctx.globals.prediction_matrix, BONE_USED_BY_ANYTHING);
+	local->setup_bones_fixed(g_ctx.globals.prediction_matrix, BONE_USED_BY_ANYTHING);
 
 	if (g_ctx.local()->is_alive())
 	{

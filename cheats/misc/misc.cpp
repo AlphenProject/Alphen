@@ -355,17 +355,6 @@ void misc::FullBright()
 		mat_fullbright->SetValue(g_cfg.esp.bright);
 }
 
-void misc::DrawGray()
-{
-	if (!g_cfg.player.enable)
-		return;
-
-	static auto mat_drawgray = m_cvar()->FindVar(crypt_str("mat_drawgray"));
-
-	if (mat_drawgray->GetBool() != g_cfg.esp.drawgray)
-		mat_drawgray->SetValue(g_cfg.esp.drawgray);
-}
-
 void misc::PovArrows(player_t* e, Color color)
 {
 	auto isOnScreen = [](Vector origin, Vector& screen) -> bool

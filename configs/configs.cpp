@@ -281,7 +281,6 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.esp.smoke_timer_color, Color(255, 255, 255), crypt_str("Esp.smoke_timer_color"));
 	setup_item(&g_cfg.esp.bomb_timer, false, crypt_str("Esp.bomb_timer"));
 	setup_item(&g_cfg.esp.bright, false, crypt_str("Esp.bright"));
-	setup_item(&g_cfg.esp.drawgray, false, crypt_str("Esp.drawgray"));
 	setup_item(&g_cfg.esp.nightmode, false, crypt_str("Esp.nightmode"));
 	setup_item(&g_cfg.esp.world_color, Color(255, 255, 255), crypt_str("Esp.world_color"));
 	setup_item(&g_cfg.esp.props_color, Color(255, 255, 255), crypt_str("Esp.props_color"));

@@ -635,7 +635,6 @@ struct Config
 		Color smoke_timer_color;
 		bool bomb_timer;
 		bool bright;
-		bool drawgray;
 		bool nightmode;
 		Color world_color;
 		Color props_color;

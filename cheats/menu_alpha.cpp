@@ -1958,7 +1958,7 @@ void c_menu::draw(bool is_open)
 						ImGui::Checkbox(crypt_str("Spectator list"), &g_cfg.misc.spectators_list);
 						ImGui::Checkbox(crypt_str("Keybinds list"), &g_cfg.misc.keybinds);
 
-						draw_combo(crypt_str("Hitsound"), g_cfg.esp.hitsound, sounds, ARRAYSIZE(sounds));
+						ImGui::Checkbox(crypt_str("Hitsound"), &g_cfg.esp.hitsound);
 
 						draw_multicombo(crypt_str("Logs"), g_cfg.misc.events_to_log, events, ARRAYSIZE(events), preview);
 
@@ -1981,9 +1981,6 @@ void c_menu::draw(bool is_open)
 
 						ImGui::Checkbox(crypt_str("Chat Spammer"), &g_cfg.misc.chat);
 						ImGui::Checkbox(crypt_str("Clantag"), &g_cfg.misc.clantag_spammer);
-
-						if (g_cfg.misc.clantag_spammer)
-							draw_combo(crypt_str("Clantag changer"), g_cfg.misc.clantags_mode, clantags_mode, ARRAYSIZE(clantags_mode));
 					}
 					tab_end();
 
@@ -1994,16 +1991,12 @@ void c_menu::draw(bool is_open)
 					{
 						ImGui::TabName(crypt_str("Setup"));
 
-						ImGui::Checkbox(crypt_str("OBS bypass"), &g_cfg.menu.obs_bypass);
 						ImGui::Checkbox(crypt_str("Developer mode"), &g_cfg.scripts.developer_mode);
 
 						draw_combo(crypt_str("DPI scale"), g_cfg.menu.size_menu, dpi, ARRAYSIZE(dpi));
 
 						if (ImGui::CustomButton(crypt_str("unlock hidden convars"), crypt_str("##GAME__UNLOCK"), ImVec2(260 * dpi_s, 28 * dpi_scale)))
 							misc::get().EnableHiddenCVars();
-
-						//if (ImGui::CustomButton(crypt_str("RAGE QUIT!"), crypt_str("##RAGE_QUIT"), ImVec2(260 * dpi_s, 28 * dpi_scale)))
-							//exit(0);
 					}
 					tab_end();
 

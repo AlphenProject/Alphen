@@ -547,15 +547,6 @@ const char* player_model_ct[] =
 	"Lieutenant 'Tree Hugger' Farlow | SWAT"
 };
 
-const char* clantags_mode[] =
-{
-	"Alphen",
-	"Gamesence",
-	"NeverLose.cc",
-	"Nixware.cc",
-	"Ev0lve.xyz"
-};
-
 const char* dpi[] =
 {
 	"50 %",

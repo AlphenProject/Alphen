@@ -915,8 +915,9 @@ void aim::find_best_target()
 	if (g_cfg.ragebot.weapon[g_ctx.globals.current_weapon].selection_type)
 		std::sort(scanned_targets.begin(), scanned_targets.end(), compare_targets);
 
-	for (auto& target : scanned_targets) {
-		if (target.fov > 180)
+	for (auto& target : scanned_targets)
+	{
+		if (target.fov > (float)g_cfg.ragebot.field_of_view)
 			continue;
 
 		final_target = target;
@@ -1234,17 +1235,11 @@ void aim::fire(CUserCmd* cmd)
 	else
 		safeT = "0";
 	
-	log << ("Attemp Fire: ") + (std::string)player_info.szName + (", ");
+	log << ("Fired: ") + (std::string)player_info.szName + (", ");
 	//log << ("hitchance: ") + (final_hitchance == 101 ? ("MA") : std::to_string(final_hitchance)) + (", ");
-	//log << ("hitbox: ") + get_hitbox_name(final_target.data.hitbox) + (", ");
-	//log << ("damage: ") + std::to_string(final_target.data.damage) + (", ");
-	log << ("safe: ") + safeT + (", ");
-	log << ("backtrack: ") + std::to_string(backtrack_ticks) + (", ");
-	log << ("resolver type: [") + get_resolver_type(final_target.record->type) + get_resolver_mode(final_target.record->curMode) + std::to_string((float)final_target.record->desync_amount) + ("]");
-	if (final_target.record->low_delta_s)
-		log << ("(Low-Delta)");
-	if (final_target.record->flipped_s)
-		log << ("(Flipped)");
+	log << ("hitbox: ") + get_hitbox_name(final_target.data.hitbox) + (", ");
+	log << ("damage: ") + std::to_string(final_target.data.damage) + (", ");
+	log << ("backtrack: ") + std::to_string(backtrack_ticks);
 
 
 	g_ctx.globals.aimbot_working = true;
@@ -1696,3 +1691,4 @@ std::vector <scan_point> aim::get_points(adjust_data* record, int hitbox)
 
 	return points;
 }
+

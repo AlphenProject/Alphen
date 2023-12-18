@@ -13,11 +13,6 @@
 #include "..\..\cheats\misc\prediction_system.h"
 #include "..\..\cheats\lagcompensation\local_animations.h"
 #include "../../cheats/ragebot/aim.h"
-//#include "../../cheats/lagcompensation/new animfix/BoneManager.h"
-//#include "../../cheats/lagcompensation/new animfix/Animations.h"
-//#include "../../cheats/lagcompensation/new animfix/Networking.h"
-//#include "../../cheats/lagcompensation/new animfix/LagCompensation.h"
-//#include "../../cheats/lagcompensation/new animfix/LagHeader.h"
 
 using FrameStageNotify_t = void(__stdcall*)(ClientFrameStage_t);
 
@@ -346,7 +341,6 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 		worldesp::get().skybox_changer();
 		worldesp::get().fog_changer();
 
-		misc::get().DrawGray();
 		misc::get().FullBright();
 		misc::get().ViewModel();
 
@@ -463,7 +457,7 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 					
 
 						if (g_cfg.misc.events_to_log[EVENTLOG_HIT])
-							eventlogs::get().add(crypt_str("MISS | Resolver"));
+							eventlogs::get().add(crypt_str("MISS | Backtrack"));
 						 
 					}
 					else if (g_cfg.misc.events_to_log[EVENTLOG_HIT])

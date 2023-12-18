@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 //fixed by shonax
 #include "..\includes.hpp"
 #include "interfaces\IClientEntity.hpp"
@@ -761,6 +761,7 @@ public:
     CStudioHdr* m_pStudioHdr();
     CStudioHdr* GetStudioHdr();
     void SetupBones_AttachmentHelper();
+    bool setup_bones_fixed(matrix3x4_t* matrix, int mask);
     bool setup_bones_rebuilt(matrix3x4_t* matrix, int mask);
     Vector GetEyePosition();
     bool CanSeePlayer(player_t* player, const Vector& pos);

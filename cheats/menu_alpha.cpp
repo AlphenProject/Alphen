@@ -1216,10 +1216,10 @@ void c_menu::draw(bool is_open)
 
 
 					draw_combo(crypt_str("Anti-aim type"), g_cfg.antiaim.antiaim_type, antiaim_type, ARRAYSIZE(antiaim_type));
-					padding(0, 3);
-					draw_combo(crypt_str("Movement type"), type, movement_type, ARRAYSIZE(movement_type));
+					//padding(0, 3);
+					//draw_combo(crypt_str("Movement type"), type, movement_type, ARRAYSIZE(movement_type));
 
-					ImGui::Checkbox(crypt_str("Pitch null on landing"), &g_cfg.antiaim.pitch_on_land);
+					//ImGui::Checkbox(crypt_str("Pitch null on landing"), &g_cfg.antiaim.pitch_on_land);
 
 					//draw_keybind(crypt_str("Manual back"), &g_cfg.antiaim.manual_back, crypt_str("##HOTKEY_INVERT_BACK"));
 					//draw_keybind(crypt_str("Manual left"), &g_cfg.antiaim.manual_left, crypt_str("##HOTKEY_INVERT_LEFT"));
@@ -1242,18 +1242,7 @@ void c_menu::draw(bool is_open)
 					ImGui::Checkbox(crypt_str("Enabled##fakelag"), &g_cfg.antiaim.fakelag);
 					if (g_cfg.antiaim.fakelag)
 					{
-						draw_combo(crypt_str("Fake-lag type"), g_cfg.antiaim.fakelag_type, fakelags, ARRAYSIZE(fakelags));
-						padding(0, 3);
-						draw_multicombo(crypt_str("Fake-lag condition"), g_cfg.antiaim.fakelag_enablers, lagstrigger, ARRAYSIZE(lagstrigger), preview);
-
-						auto enabled_fakelag_triggers = false;
-
-						for (auto i = 0; i < ARRAYSIZE(lagstrigger); i++)
-							if (g_cfg.antiaim.fakelag_enablers[i])
-								enabled_fakelag_triggers = true;
-
-						if (enabled_fakelag_triggers)
-							ImGui::SliderInt(crypt_str("Fake-lag limit"), &g_cfg.antiaim.triggers_fakelag_amount, 1, 31);
+						ImGui::SliderInt(crypt_str("Fake-lag limit"), &g_cfg.antiaim.fakelag_amount, 1, 16);
 					}
 
 					

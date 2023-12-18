@@ -653,8 +653,7 @@ struct Config
 		int bullet_tracer_type = 8;
 		bool preserve_killfeed;
 		std::vector <int> hitmarker;
-		int hitsound;
-		bool killsound;
+		bool hitsound;
 		bool damage_marker;
 		bool kill_effect;
 		float kill_effect_duration;
@@ -756,7 +755,6 @@ struct Config
 		bool inventory_access;
 		bool rank_reveal;
 		bool clantag_spammer;
-		int clantags_mode;
 		bool buybot_enable;
 		int buybot1;
 		int buybot2;
@@ -785,7 +783,6 @@ struct Config
 
 	struct Menu_t
 	{
-		bool obs_bypass;
 		Color menu_theme;
 		int size_menu;
 		bool watermark;

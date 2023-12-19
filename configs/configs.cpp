@@ -24,42 +24,6 @@ item_setting* get_by_definition_index(const int definition_index)
 
 void C_ConfigManager::setup()
 {
-	setup_item(&g_cfg.legitbot.enabled, false, crypt_str("Legitbot.enabled"));
-	setup_item(&g_cfg.legitbot.friendly_fire, false, crypt_str("Legitbot.friendly_fire"));
-	setup_item(&g_cfg.legitbot.autopistol, false, crypt_str("Legitbot.autopistol"));
-	setup_item(&g_cfg.legitbot.autoscope, false, crypt_str("Legitbot.autoscope"));
-	setup_item(&g_cfg.legitbot.unscope, false, crypt_str("Legitbot.unscope"));
-	setup_item(&g_cfg.legitbot.sniper_in_zoom_only, false, crypt_str("Legitbot.sniper_in_zoom_only"));
-	setup_item(&g_cfg.legitbot.do_if_local_flashed, false, crypt_str("Legitbot.do_if_local_flashed"));
-	setup_item(&g_cfg.legitbot.do_if_local_in_air, false, crypt_str("Legitbot.do_if_local_in_air"));
-	setup_item(&g_cfg.legitbot.do_if_enemy_in_smoke, false, crypt_str("Legitbot.do_if_enemy_in_smoke"));
-	setup_item(&g_cfg.legitbot.autofire_delay, 0, crypt_str("Legitbot.autofire_delay"));
-	setup_item(&g_cfg.legitbot.autofire_key, key_bind(HOLD), crypt_str("Legitbot.autofire_key"));
-	setup_item(&g_cfg.legitbot.key, key_bind(HOLD), crypt_str("Legitbot.key"));
-
-	setup_item(&g_cfg.legitbot.resolver, false, crypt_str("Legitbot.resolver"));
-	setup_item(&g_cfg.legitbot.resolver_key, key_bind(HOLD), crypt_str("Legitbot.resolver_key"));
-
-	setup_item(&g_cfg.legitbot.resolver, false, crypt_str("Legitbot.resolver"));
-
-	for (auto i = 0; i < 5; i++)
-	{
-		setup_item(&g_cfg.legitbot.weapon[i].priority, 0, std::to_string(i) + crypt_str("Legitbot.rcs"));
-		setup_item(&g_cfg.legitbot.weapon[i].auto_stop, false, std::to_string(i) + crypt_str("Legitbot.auto_stop"));
-		setup_item(&g_cfg.legitbot.weapon[i].fov_type, 0, std::to_string(i) + crypt_str("Legitbot.fov_type"));
-		setup_item(&g_cfg.legitbot.weapon[i].fov, 0.0f, std::to_string(i) + crypt_str("Legitbot.fov"));
-		setup_item(&g_cfg.legitbot.weapon[i].smooth_type, 0, std::to_string(i) + crypt_str("Legitbot.smooth_type"));
-		setup_item(&g_cfg.legitbot.weapon[i].smooth, 1.0f, std::to_string(i) + crypt_str("Legitbot.smooth"));
-		setup_item(&g_cfg.legitbot.weapon[i].silent_fov, 0.0f, std::to_string(i) + crypt_str("Legitbot.silent_fov"));
-		setup_item(&g_cfg.legitbot.weapon[i].rcs_type, 0, std::to_string(i) + crypt_str("Legitbot.rcs_type"));
-		setup_item(&g_cfg.legitbot.weapon[i].rcs, 0.0f, std::to_string(i) + crypt_str("Legitbot.rcs"));
-		setup_item(&g_cfg.legitbot.weapon[i].custom_rcs_smooth, 0.0f, std::to_string(i) + crypt_str("Legitbot.custom_rcs_smooth"));
-		setup_item(&g_cfg.legitbot.weapon[i].custom_rcs_fov, 0.0f, std::to_string(i) + crypt_str("Legitbot.custom_rcs_fov"));
-		setup_item(&g_cfg.legitbot.weapon[i].awall_dmg, 0, std::to_string(i) + crypt_str("Legitbot.awall_dmg"));
-		setup_item(&g_cfg.legitbot.weapon[i].target_switch_delay, 0.0f, std::to_string(i) + crypt_str("Legitbot.target_switch_delay"));
-		setup_item(&g_cfg.legitbot.weapon[i].autofire_hitchance, 0, std::to_string(i) + crypt_str("Legitbot.autofire_hitchance"));
-	}
-
 	setup_item(&g_cfg.ragebot.enable, false, crypt_str("Ragebot.enable"));
 	setup_item(&g_cfg.ragebot.silent_aim, false, crypt_str("Ragebot.silent_aim"));
 	setup_item(&g_cfg.ragebot.field_of_view, 1, crypt_str("Ragebot.fov"));
@@ -68,14 +32,9 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.ragebot.knife_bot, false, crypt_str("Ragebot.knife_bot"));
 	setup_item(&g_cfg.ragebot.autoshoot, false, crypt_str("Ragebot.autoshoot"));
 	setup_item(&g_cfg.ragebot.double_tap, false, crypt_str("Ragebot.double_tap"));
-	setup_item(&g_cfg.ragebot.dt_types, 0, crypt_str("Ragebot.dt_types"));
 
-	//setup_item(&g_cfg.ragebot.resolver, false, crypt_str("Ragebot.resolver"));
-	//setup_item(&g_cfg.ragebot.teleport_speed, 0, crypt_str("Ragebot.teleport_speed"));
-	//setup_item(&g_cfg.ragebot.slow_teleport, false, crypt_str("Ragebot.slow_teleport"));
 	setup_item(&g_cfg.ragebot.double_tap_key, key_bind(TOGGLE), crypt_str("Ragebot.double_tap_key"));
 	setup_item(&g_cfg.ragebot.autoscope, false, crypt_str("Ragebot.autoscope"));
-	//setup_item(&g_cfg.ragebot.dtap_type, 0, crypt_str("Ragebot.dtaptype"));
 	setup_item(&g_cfg.ragebot.safe_point_key, key_bind(HOLD), crypt_str("Ragebot.safe_point_key"));
 	setup_item(&g_cfg.ragebot.body_aim_key, key_bind(HOLD), crypt_str("Ragebot.body_aim_key"));
 	setup_item(&g_cfg.ragebot.pitch_correction, false, crypt_str("Ragebot.pitch_antiaim_correction"));
@@ -99,9 +58,6 @@ void C_ConfigManager::setup()
 		setup_item(&g_cfg.ragebot.weapon[i].bodyaimcond, 3, std::to_string(i) + crypt_str("Ragebot.bodyaimcond"));
 		setup_item(&g_cfg.ragebot.weapon[i].headaimcond, 2, std::to_string(i) + crypt_str("Ragebot.headaimcond"));
 		setup_item(&g_cfg.ragebot.weapon[i].headaimonlycond, 2, std::to_string(i) + crypt_str("Ragebot.headaimonlycond"));
-		//setup_item(&g_cfg.ragebot.weapon[i].static_point_scale, false, std::to_string(i) + crypt_str("Ragebot.static_point_scale"));
-		//setup_item(&g_cfg.ragebot.weapon[i].head_scale, 0.0f, std::to_string(i) + crypt_str("Ragebot.head_scale"));
-		//setup_item(&g_cfg.ragebot.weapon[i].body_scale, 0.0f, std::to_string(i) + crypt_str("Ragebot.body_scale"));
 		setup_item(&g_cfg.ragebot.weapon[i].static_point_scale, false, std::to_string(i) + crypt_str("Ragebot.multipoints"));
 		setup_item(&g_cfg.ragebot.weapon[i].multipoints_hitboxes, 9, std::to_string(i) + crypt_str("Ragebot.multipoints_hitboxes"));
 		setup_item(&g_cfg.ragebot.weapon[i].head_scale, 0.0f, std::to_string(i) + crypt_str("Ragebot.multipoints_scale"));
@@ -114,17 +70,10 @@ void C_ConfigManager::setup()
 		setup_item(&g_cfg.ragebot.weapon[i].adaptive_point_scale, false, std::to_string(i) + crypt_str("Ragebot.adaptive_ps"));
 		setup_item(&g_cfg.ragebot.weapon[i].rage_aimbot_ignore_limbs, false, std::to_string(i) + crypt_str("Ragebot_ignore_limbs"));
 	}
-
-
-	setup_item(&g_cfg.ragebot.defensive_doubletap, false, crypt_str("Ragebot.defensive_double_tap"));
 	setup_item(&g_cfg.ragebot.anti_exploit, false, crypt_str("Ragebot.anti_exploit"));
 	//
 	setup_item(&g_cfg.ragebot.double_tap, false, crypt_str("Ragebot.double_tap"));
-	setup_item(&g_cfg.ragebot.instant_double_tap, false, crypt_str("Ragebot.instant_double_tap"));
 	setup_item(&g_cfg.ragebot.double_tap_key, key_bind(TOGGLE), crypt_str("Ragebot.double_tap_key"));
-	setup_item(&g_cfg.ragebot.use_cs_shift_amount, false, crypt_str("Ragebot.use_cs_shift_amount"));
-	setup_item(&g_cfg.ragebot.recharge_time, 0.75f, crypt_str("Ragebot.recharge_time"));
-	setup_item(&g_cfg.ragebot.shift_amount, 14, crypt_str("Ragebot.shift_amount"));
 
 
 
@@ -145,14 +94,8 @@ void C_ConfigManager::setup()
 	setup_item(&g_cfg.antiaim.desync, 0, crypt_str("Antiaim.desync"));
 	setup_item(&g_cfg.antiaim.legit_lby_type, 0, crypt_str("Antiaim.legit_lby_type"));
 	setup_item(&g_cfg.antiaim.lby_type, 0, crypt_str("Antiaim.lby_type"));
-	setup_item(&g_cfg.antiaim.manual_back, key_bind(TOGGLE), crypt_str("Antiaim.manual_back"));
-	setup_item(&g_cfg.antiaim.manual_left, key_bind(TOGGLE), crypt_str("Antiaim.manual_left"));
-	setup_item(&g_cfg.antiaim.manual_right, key_bind(TOGGLE), crypt_str("Antiaim.manual_right"));
-	setup_item(&g_cfg.antiaim.manual_forward, key_bind(TOGGLE), crypt_str("Antiaim.manual_forward"));
 	setup_item(&g_cfg.antiaim.flip_desync, key_bind(TOGGLE), crypt_str("Antiaim.flip_desync"));
 	setup_item(&g_cfg.antiaim.airstuck_key, key_bind(TOGGLE), crypt_str("Antiaim.airstuck_key"));
-	setup_item(&g_cfg.antiaim.flip_indicator, false, crypt_str("Antiaim.flip_indicator"));
-	setup_item(&g_cfg.antiaim.flip_indicator_color, Color(255, 255, 255), crypt_str("Antiaim.flip_indicator_color"));
 
 	setup_item(&g_cfg.antiaim.fakelag, false, crypt_str("Antiaim.fake_lag"));
 	setup_item(&g_cfg.antiaim.fakelag_type, 0, crypt_str("Antiaim.fake_lag_type"));
@@ -162,9 +105,6 @@ void C_ConfigManager::setup()
 
 	setup_item(&g_cfg.antiaim.flicktick, 5, crypt_str("Player.flick_tick"));
 	setup_item(&g_cfg.antiaim.flick, false, crypt_str("Player.flick_enable"));
-	setup_item(&g_cfg.antiaim.static_legs, false, crypt_str("Antiaim.static_in_legs_air"));
-	setup_item(&g_cfg.antiaim.pitch_on_land, false, crypt_str("Antiaim.pitch_on_land"));
-
 	for (auto i = 0; i < 4; i++)
 	{
 		setup_item(&g_cfg.antiaim.type[i].pitch, 0, std::to_string(i) + crypt_str("Antiaim.pitch"));

@@ -1,6 +1,4 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
-
 #include "setup_bones.h"
 
 class CIKContext
@@ -233,7 +231,7 @@ void MergeMatchingPoseParams(uintptr_t bonemerge, float* poses, float* target_po
 	}
 }
 
-void CSetupBones::setup_bones_server()
+void CSetupBones::setup()
 {
 	static auto ik = util::FindSignature(crypt_str("client.dll"), crypt_str("8B 8F ?? ?? ?? ?? 89 4C 24 1C"));
 	static auto m_pIk = *(CIKContext**)((uintptr_t)m_animating + *(uintptr_t*)(ik + 0x2) + 0x4);
@@ -308,8 +306,7 @@ void CSetupBones::get_skeleton()
 {
 	alignas(16) Vector position[256];
 	alignas(16) Quaternion rotation[256];
-	if (!m_animating)
-		return;
+
 	static auto ik = util::FindSignature(crypt_str("client.dll"), crypt_str("8B 8F ?? ?? ?? ?? 89 4C 24 1C"));
 	static auto m_pIk = *(CIKContext**)((uintptr_t)m_animating + *(uintptr_t*)(ik + 0x2) + 0x4);
 
@@ -346,7 +343,7 @@ void CSetupBones::get_skeleton()
 	static auto copy_from_follow = rel32_fix(util::FindSignature(crypt_str("client.dll"), crypt_str("E8 ?? ?? ?? ?? F3 0F 10 45 ?? 8D 84 24 ?? ?? ?? ??")));
 	static auto bone_merge_copy_from_follow = (void(__thiscall*)(uintptr_t, Vector*, Quaternion*, int, Vector*, Quaternion*))copy_from_follow;
 
-	std::unique_ptr<char*> tmp_buffer[4208];
+	char tmp_buffer[4208];
 	auto world_ik = (CIKContext*)tmp_buffer;
 
 	auto weapon = m_animating->m_hActiveWeapon().Get();

@@ -1,4 +1,4 @@
-﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "antiaim.h"
@@ -286,19 +286,17 @@ float antiaim::get_yaw(CUserCmd* m_pcmd)
 	static auto sway_counter = 0;
 	static auto force_choke = false;
 
+
 	if (should_break_lby(m_pcmd, lby_type))
 	{
-		auto speed = 1.01f;
-
-		if (m_pcmd->m_buttons & IN_DUCK || g_ctx.globals.fakeducking)
-			speed *= 2.94117647f;
+		auto speed = g_ctx.local()->m_vecViewOffset().z <= 63.0f ? 3.3f : 1.1f;
 
 		static auto switch_move = false;
 
 		if (switch_move)
-			m_pcmd->m_sidemove += speed;
+			m_pcmd->m_forwardmove = speed;
 		else
-			m_pcmd->m_sidemove -= speed;
+			m_pcmd->m_forwardmove = -speed;
 
 		switch_move = !switch_move;
 
@@ -407,7 +405,7 @@ bool antiaim::should_break_lby(CUserCmd* m_pcmd, int lby_type)
 		return false;
 
 	if (animstate->m_velocity > 0.1f || fabs(animstate->flUpVelocity) > 100.0f)
-		g_ctx.globals.next_lby_update = TICKS_TO_TIME(g_ctx.globals.fixed_tickbase + 14);
+		g_ctx.globals.next_lby_update = TICKS_TO_TIME(g_ctx.globals.fixed_tickbase + 54);
 	else
 	{
 		if (TICKS_TO_TIME(g_ctx.globals.fixed_tickbase) > g_ctx.globals.next_lby_update)

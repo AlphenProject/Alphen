@@ -922,10 +922,9 @@ void c_menu::draw(bool is_open)
 
 	// default menu size
 	const float x = 670 * dpi_s, y = 600 * dpi_s;
-	const int tabs_count = 7;
+	const int tabs_count = 6;
 	const char* tabs[tabs_count] =
 	{
-		"H",
 		"A",
 		"B",
 		"C",
@@ -979,17 +978,17 @@ void c_menu::draw(bool is_open)
 		}
 		ImGui::EndChild();
 
-		ImGui::SetCursorPos(ImVec2{ 40, y - 20 });
+		ImGui::SetCursorPos(ImVec2{ 40, y - 15 });
 		ImGui::BeginChild("##footer", ImVec2{ x - 40, 20 }, false);
 		{
-			//ImGui::Text(crypt_str("Alphen.cc | Beta-Test MultiHack For CS:GO"));
+			ImGui::Text(crypt_str("Alphen.cc | New rage cheat for CS:GO."));
 		}
 		ImGui::EndChild();
 
 		float size_x = x - 60;
 		float size_y = y - 60;
 
-		if (active_tab == 1) 
+		if (active_tab == 0) 
 		{
 			subtab_start("subtab#1", size_x, size_y);
 			if (ImGui::sub_tab("General ", (size_x - 40) / 2, rage_tab == 0 ? true : false)) rage_tab = 0; ImGui::SameLine(0);
@@ -997,7 +996,7 @@ void c_menu::draw(bool is_open)
 			subtab_end();
 		}
 
-		if (active_tab == 3) 
+		if (active_tab == 2) 
 		{
 			subtab_start("subtab#2", size_x, size_y);
 			if (ImGui::sub_tab("Model ", (size_x - 40) / 2, visual_tab == 0 ? true : false)) visual_tab = 0; ImGui::SameLine(0);
@@ -1005,7 +1004,7 @@ void c_menu::draw(bool is_open)
 			subtab_end();
 		}
 
-		if (active_tab == 4) 
+		if (active_tab == 3) 
 		{
 			subtab_start("subtab#4", size_x, size_y);
 			if (ImGui::sub_tab("General ", (size_x - 40) / 2, miscc_tab1 == 0 ? true : false)) miscc_tab1 = 0; ImGui::SameLine(0);
@@ -1030,7 +1029,7 @@ void c_menu::draw(bool is_open)
 			Style->Colors[ImGuiCol_ChildBg] = ImColor(34, 34, 34);
 			Style->ChildRounding = 2;
 
-			if (active_tab == 1)
+			if (active_tab == 0)
 			{
 				if (rage_tab == 0)
 				{
@@ -1061,63 +1060,12 @@ void c_menu::draw(bool is_open)
 						ImGui::TabName(crypt_str("Exploit"));
 
 						ImGui::Checkbox(crypt_str("Hide shots"), &g_cfg.antiaim.hide_shots);
-						if (g_cfg.antiaim.hide_shots)
-						{
-							ImGui::SameLine();
-							draw_keybind(crypt_str(""), &g_cfg.antiaim.hide_shots_key, crypt_str("##HOTKEY_HIDESHOTS"));
-						}
+						ImGui::SameLine();
+						draw_keybind(crypt_str(""), &g_cfg.antiaim.hide_shots_key, crypt_str("##HOTKEY_HIDESHOTS"));
 
 						ImGui::Checkbox(crypt_str("Double tap"), &g_cfg.ragebot.double_tap);
 						ImGui::SameLine();
 						draw_keybind(crypt_str(""), &g_cfg.ragebot.double_tap_key, crypt_str("##HOTKEY_DOUBLETAP"));
-						if (g_cfg.ragebot.double_tap)
-						{
-							if (&g_cfg.ragebot.double_tap_key)
-							{
-
-								if (g_cfg.ragebot.double_tap)
-									draw_combo(crypt_str("DoubleTap Type"), g_cfg.ragebot.dt_types, dt_type, ARRAYSIZE(dt_type));
-
-								switch (g_cfg.ragebot.dt_types)
-								{
-								case 0:
-									g_cfg.ragebot.shift_amount = 14;
-									g_cfg.ragebot.recharge_time = 0.75f;
-									g_cfg.ragebot.defensive_doubletap = false;
-									g_cfg.ragebot.use_cs_shift_amount = false;
-									break;
-								case 1:
-									g_cfg.ragebot.shift_amount = 16;
-									g_cfg.ragebot.recharge_time = 0.30f;
-									g_cfg.ragebot.defensive_doubletap = true;
-									g_cfg.ragebot.use_cs_shift_amount = false;
-									break;
-								case 2:
-									g_cfg.ragebot.shift_amount = 14;
-									g_cfg.ragebot.recharge_time = 0.30f;
-									g_cfg.ragebot.defensive_doubletap = false;
-									g_cfg.ragebot.use_cs_shift_amount = false;
-									break;
-								case 3:
-									g_cfg.ragebot.defensive_doubletap = false;
-									g_cfg.ragebot.use_cs_shift_amount = true;
-									break;
-								}
-
-
-								//ImGui::Checkbox(crypt_str("Defensive double-tap"), &g_cfg.ragebot.defensive_doubletap);
-								//ImGui::Checkbox(crypt_str("Break LagComp"), &g_cfg.misc.break_lc);
-								//ImGui::Checkbox(crypt_str("Defensive"), &g_cfg.ragebot.defensive_doubletap);
-								//ImGui::Checkbox(crypt_str("Custome Double Tap"), &g_cfg.ragebot.use_cs_shift_amount);
-								if (g_cfg.ragebot.use_cs_shift_amount)
-								{
-									ImGui::SliderInt(crypt_str("Ticks To Shift"), &g_cfg.ragebot.shift_amount, 1, 17);
-									ImGui::SliderFloat(crypt_str("Recharge Time"), &g_cfg.ragebot.recharge_time, 0.00f, 3.00f, crypt_str("%.2f"));
-								}
-							}
-
-
-						}
 					}
 					tab_end();
 				}
@@ -1204,7 +1152,7 @@ void c_menu::draw(bool is_open)
 				}
 			}
 
-			if (active_tab == 2)
+			if (active_tab == 1)
 			{
 
 				tab_start("3", column_1, 0, size_a_x, size_a_y);
@@ -1213,25 +1161,7 @@ void c_menu::draw(bool is_open)
 
 					ImGui::Checkbox(crypt_str("Enabled"), &g_cfg.antiaim.enable);
 
-
-
 					draw_combo(crypt_str("Anti-aim type"), g_cfg.antiaim.antiaim_type, antiaim_type, ARRAYSIZE(antiaim_type));
-					//padding(0, 3);
-					//draw_combo(crypt_str("Movement type"), type, movement_type, ARRAYSIZE(movement_type));
-
-					//ImGui::Checkbox(crypt_str("Pitch null on landing"), &g_cfg.antiaim.pitch_on_land);
-
-					//draw_keybind(crypt_str("Manual back"), &g_cfg.antiaim.manual_back, crypt_str("##HOTKEY_INVERT_BACK"));
-					//draw_keybind(crypt_str("Manual left"), &g_cfg.antiaim.manual_left, crypt_str("##HOTKEY_INVERT_LEFT"));
-					//draw_keybind(crypt_str("Manual right"), &g_cfg.antiaim.manual_right, crypt_str("##HOTKEY_INVERT_RIGHT"));
-					//draw_keybind(crypt_str("Manual forward"), &g_cfg.antiaim.manual_forward, crypt_str("##HOTKEY_INVERT_FORWARD"));
-
-					//if (g_cfg.antiaim.manual_back.key > KEY_NONE && g_cfg.antiaim.manual_back.key < KEY_MAX || g_cfg.antiaim.manual_left.key > KEY_NONE && g_cfg.antiaim.manual_left.key < KEY_MAX || g_cfg.antiaim.manual_right.key > KEY_NONE && g_cfg.antiaim.manual_right.key < KEY_MAX)
-					//{
-						//ImGui::Checkbox(crypt_str("Manual anti-aim"), &g_cfg.antiaim.flip_indicator);
-						//ImGui::SameLine();
-						//ImGui::ColorEdit(crypt_str("##invc"), &g_cfg.antiaim.flip_indicator_color, ALPHA);
-					//}
 				}
 				tab_end();
 
@@ -1269,11 +1199,6 @@ void c_menu::draw(bool is_open)
 						if (g_cfg.antiaim.flick)
 							ImGui::SliderInt(crypt_str("Flick Speed"), &g_cfg.antiaim.flicktick, 5, 64, false, crypt_str("%d°"));
 						ImGui::Checkbox(crypt_str("Desync on-shot"), &g_cfg.antiaim.desync_on_shot);
-						//ImGui::Checkbox(crypt_str("Roll"), &g_cfg.antiaim.roll_enabled);
-						//if (g_cfg.antiaim.roll_enabled)
-							//ImGui::SliderFloat(crypt_str("roll amount"), &g_cfg.antiaim.roll, -45.f, 45.f, crypt_str("%.2f"));
-
-						ImGui::Checkbox(crypt_str("Static legs in air"), &g_cfg.antiaim.static_legs);
 						ImGui::Checkbox(crypt_str("Freestand desync"), &g_cfg.antiaim.freestand);
 
 						draw_combo(crypt_str("Pitch"), g_cfg.antiaim.type[type].pitch, pitch, ARRAYSIZE(pitch));
@@ -1295,117 +1220,21 @@ void c_menu::draw(bool is_open)
 
 						draw_combo(crypt_str("Desync"), g_cfg.antiaim.type[type].desync, desync, ARRAYSIZE(desync));
 
-						if (g_cfg.antiaim.type[type].desync == 1)
-						{
-							
-								
-
-						}
-
 						if (g_cfg.antiaim.type[type].desync)
 						{
-							if (type == ANTIAIM_STAND)
-							{
-								draw_combo(crypt_str("LBY type"), g_cfg.antiaim.lby_type, lby_type, ARRAYSIZE(lby_type));
-							}
+							draw_combo(crypt_str("LBY type"), g_cfg.antiaim.lby_type, lby_type, ARRAYSIZE(lby_type));
 
-							if (type != ANTIAIM_STAND || !g_cfg.antiaim.lby_type)
-							{
-								ImGui::SliderInt(crypt_str("Desync range"), &g_cfg.antiaim.type[type].desync_range, -58 , 58);
-								ImGui::SliderInt(crypt_str("Inverted desync range"), &g_cfg.antiaim.type[type].inverted_desync_range, -58 , 58 );
-								ImGui::SliderInt(crypt_str("Body lean"), &g_cfg.antiaim.type[type].body_lean, 0, 100);
-								ImGui::SliderInt(crypt_str("Inverted body lean"), &g_cfg.antiaim.type[type].inverted_body_lean, 0, 100);
-							}
+							ImGui::SliderInt(crypt_str("Desync range"), &g_cfg.antiaim.type[type].desync_range, -58, 58);
+							ImGui::SliderInt(crypt_str("Inverted desync range"), &g_cfg.antiaim.type[type].inverted_desync_range, -58, 58);
+							ImGui::SliderInt(crypt_str("Body lean"), &g_cfg.antiaim.type[type].body_lean, 0, 100);
+							ImGui::SliderInt(crypt_str("Inverted body lean"), &g_cfg.antiaim.type[type].inverted_body_lean, 0, 100);
 						}
 					}
 					tab_end();
 				}
 			}
 
-			if (active_tab == 0)
-			{
-				const char* legit_weapons[6] = { crypt_str("Deagle"), crypt_str("Pistols"), crypt_str("Rifles"), crypt_str("SMGs"), crypt_str("Snipers"), crypt_str("Heavy") };
-				const char* hitbox_legit[3] = { crypt_str("Nearest"), crypt_str("Head"), crypt_str("Body") };
-
-				const char* track[3] = { crypt_str("Low"), crypt_str("Medium"), crypt_str("High") };
-
-				tab_start("#1", column_1, 0, size_a_x, size_d_y);
-				{
-					ImGui::TabName(crypt_str("Legit bot"));
-
-					padding(0, 6);
-					ImGui::Checkbox(crypt_str("Enable"), &g_cfg.legitbot.enabled);
-					ImGui::SameLine();
-					draw_keybind(crypt_str(""), &g_cfg.legitbot.key, crypt_str("##HOTKEY_LGBT_KEY"));
-
-					if (g_cfg.legitbot.enabled)
-						g_cfg.ragebot.enable = false;
-
-					ImGui::Checkbox(crypt_str("Friendly fire"), &g_cfg.legitbot.friendly_fire);
-					ImGui::Checkbox(crypt_str("Automatic pistols"), &g_cfg.legitbot.autopistol);
-
-					ImGui::Checkbox(crypt_str("Automatic scope"), &g_cfg.legitbot.autoscope);
-
-					if (g_cfg.legitbot.autoscope)
-						ImGui::Checkbox(crypt_str("Unscope after shot"), &g_cfg.legitbot.unscope);
-
-					ImGui::Checkbox(crypt_str("Snipers in zoom only"), &g_cfg.legitbot.sniper_in_zoom_only);
-
-					ImGui::Checkbox(crypt_str("Enable in air"), &g_cfg.legitbot.do_if_local_in_air);
-					ImGui::Checkbox(crypt_str("Enable if flashed"), &g_cfg.legitbot.do_if_local_flashed);
-					ImGui::Checkbox(crypt_str("Enable in smoke"), &g_cfg.legitbot.do_if_enemy_in_smoke);
-
-					draw_keybind(crypt_str("Automatic fire key"), &g_cfg.legitbot.autofire_key, crypt_str("##HOTKEY_AUTOFIRE_LGBT_KEY"));
-					ImGui::SliderInt(crypt_str("Automatic fire delay"), &g_cfg.legitbot.autofire_delay, 0, 12, false, (!g_cfg.legitbot.autofire_delay ? crypt_str("None") : (g_cfg.legitbot.autofire_delay == 1 ? crypt_str("%d tick") : crypt_str("%d ticks"))));
-				}
-				tab_end();
-
-				tab_start("3224233452", column_2, 0, size_a_x, size_d_y);
-				{
-					ImGui::TabName(crypt_str("Weapon settings"));
-
-					ImGui::Spacing();
-					draw_combo(crypt_str("Current weapon"), hooks::legit_weapon, legit_weapons, ARRAYSIZE(legit_weapons));
-					ImGui::Spacing();
-					draw_combo(crypt_str("Hitbox"), g_cfg.legitbot.weapon[hooks::legit_weapon].priority, hitbox_legit, ARRAYSIZE(hitbox_legit));
-
-					ImGui::Checkbox(crypt_str("Automatic stop"), &g_cfg.legitbot.weapon[hooks::legit_weapon].auto_stop);
-
-					draw_combo(crypt_str("Backtrack tick"), g_cfg.legitbot.weapon[hooks::legit_weapon].accuracy_boost_type, track, ARRAYSIZE(track));
-
-					draw_combo(crypt_str("Field of view type"), g_cfg.legitbot.weapon[hooks::legit_weapon].fov_type, LegitFov, ARRAYSIZE(LegitFov));
-					ImGui::SliderFloat(crypt_str("Field of view amount"), &g_cfg.legitbot.weapon[hooks::legit_weapon].fov, 0.f, 30.f, crypt_str("%.2f"));
-
-					ImGui::Spacing();
-
-					ImGui::SliderFloat(crypt_str("Silent field of view"), &g_cfg.legitbot.weapon[hooks::legit_weapon].silent_fov, 0.f, 30.f, (!g_cfg.legitbot.weapon[hooks::legit_weapon].silent_fov ? crypt_str("None") : crypt_str("%.2f"))); //-V550
-
-					ImGui::Spacing();
-
-					draw_combo(crypt_str("Smooth type"), g_cfg.legitbot.weapon[hooks::legit_weapon].smooth_type, LegitSmooth, ARRAYSIZE(LegitSmooth));
-					ImGui::SliderFloat(crypt_str("Smooth amount"), &g_cfg.legitbot.weapon[hooks::legit_weapon].smooth, 1.f, 12.f, crypt_str("%.1f"));
-
-					ImGui::Spacing();
-
-					draw_combo(crypt_str("RCS type"), g_cfg.legitbot.weapon[hooks::legit_weapon].rcs_type, RCSType, ARRAYSIZE(RCSType));
-					ImGui::SliderFloat(crypt_str("RCS amount"), &g_cfg.legitbot.weapon[hooks::legit_weapon].rcs, 0.f, 100.f, crypt_str("%.0f%%"), 1.f);
-
-					if (g_cfg.legitbot.weapon[hooks::legit_weapon].rcs > 0)
-					{
-						ImGui::SliderFloat(crypt_str("RCS custom field of view"), &g_cfg.legitbot.weapon[hooks::legit_weapon].custom_rcs_fov, 0.f, 30.f, (!g_cfg.legitbot.weapon[hooks::legit_weapon].custom_rcs_fov ? crypt_str("None") : crypt_str("%.2f"))); //-V550
-						ImGui::SliderFloat(crypt_str("RCS Custom smooth"), &g_cfg.legitbot.weapon[hooks::legit_weapon].custom_rcs_smooth, 0.f, 12.f, (!g_cfg.legitbot.weapon[hooks::legit_weapon].custom_rcs_smooth ? crypt_str("None") : crypt_str("%.1f"))); //-V550
-					}
-
-					ImGui::Spacing();
-
-					ImGui::SliderInt(crypt_str("Automatic wall damage"), &g_cfg.legitbot.weapon[hooks::legit_weapon].awall_dmg, 0, 100, false, (!g_cfg.legitbot.weapon[hooks::legit_weapon].awall_dmg ? crypt_str("None") : crypt_str("%d")));
-					ImGui::SliderInt(crypt_str("Automatic fire hitchance"), &g_cfg.legitbot.weapon[hooks::legit_weapon].autofire_hitchance, 0, 100, false, (!g_cfg.legitbot.weapon[hooks::legit_weapon].autofire_hitchance ? crypt_str("None") : crypt_str("%d")));
-					ImGui::SliderFloat(crypt_str("Target switch delay"), &g_cfg.legitbot.weapon[hooks::legit_weapon].target_switch_delay, 0.f, 1.f);
-				}
-				tab_end();
-			}
-
-			if (active_tab == 3)
+			if (active_tab == 2)
 			{
 				if (visual_tab == 0)
 				{
@@ -1886,7 +1715,7 @@ void c_menu::draw(bool is_open)
 				}
 			}
 
-			if (active_tab == 4)
+			if (active_tab == 3)
 			{
 				if (miscc_tab1 == 0)
 				{
@@ -2022,7 +1851,7 @@ void c_menu::draw(bool is_open)
 					tab_end();
 				}
 			}
-			if (active_tab == 5)
+			if (active_tab == 4)
 			{
 				tab_start("lua#1", column_1, 0, size_a_x, size_d_y);
 				{
@@ -2185,7 +2014,7 @@ void c_menu::draw(bool is_open)
 				tab_end();
 			}
 
-			if (active_tab == 6)
+			if (active_tab == 5)
 			{
 				tab_start("lua#1", column_1, 0, size_a_x, size_d_y);
 				{

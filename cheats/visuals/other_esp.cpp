@@ -37,7 +37,7 @@ bool can_penetrate(weapon_t* weapon)
 	static auto damageReductionBullets = m_cvar()->FindVar(crypt_str("ff_damage_reduction_bullets"));
 	static auto damageBulletPenetration = m_cvar()->FindVar(crypt_str("ff_damage_bullet_penetration"));
 
-	return CAutoWall::handle_bullet_penetration_lw(weapon_info, trace, eye_pos, direction, hits, damage, penetration_power, damageReductionBullets->GetFloat(), damageBulletPenetration->GetFloat());
+	return autowall::get().handle_bullet_penetration(weapon_info, trace, eye_pos, direction, hits, damage, penetration_power, damageReductionBullets->GetFloat(), damageBulletPenetration->GetFloat());
 }
 
 void otheresp::penetration_reticle()
@@ -176,16 +176,6 @@ void otheresp::holopanel(player_t* WhoUseThisBone, int hitbox_id, bool autodir)
 				{
 					render::get().text(fonts[NAME], angle.x + 110, angle.y - 145, Color(255, 255, 255, 255), 0, "Exploit : ");
 					render::get().text(fonts[NAME], angle.x + 110 + render::get().text_width(fonts[NAME], "Exploit : "), angle.y - 145, Color(219, 15, 15, 255), 0, "Not active");
-				}
-
-				render::get().text(fonts[NAME], angle.x + 110, angle.y - 125, Color(255, 255, 255, 255), 0, "DoubleTap Type : ");
-				if (g_cfg.ragebot.instant_double_tap or g_cfg.ragebot.defensive_doubletap)
-				{
-					render::get().text(fonts[NAME], angle.x + 110 + render::get().text_width(fonts[NAME], "Doubletap Type : "), angle.y - 125, Color(117, 219, 15, 255), 0, "Instant");
-				}
-				else
-				{
-					render::get().text(fonts[NAME], angle.x + 110 + render::get().text_width(fonts[NAME], "Doubletap Type : "), angle.y - 125, Color(219, 15, 15, 255), 0, "Default");
 				}
 
 				render::get().text(fonts[NAME], angle.x + 110, angle.y - 105, Color(255, 255, 255, 255), 0, "Fps : ");

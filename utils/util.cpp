@@ -1,4 +1,4 @@
-﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "util.hpp"
@@ -455,24 +455,8 @@ namespace util
 			cmd->m_sidemove = abs(cmd->m_sidemove) > 10.f ? copysignf(450.f, cmd->m_sidemove) : 0.f;
 		else
 		{
-			if (g_cfg.ragebot.instant_double_tap)
-			{
-				Vector vMove(cmd->m_forwardmove, cmd->m_sidemove, cmd->m_upmove);
-				float flSpeed = sqrt(vMove.x * vMove.x + vMove.y * vMove.y), flYaw;
-				Vector vMove2;
-				math::VectorAngles(vMove, vMove2);
-				vMove2.Normalize();
-				flYaw = DEG2RAD(cmd->m_viewangles.y - g_ctx.globals.original.y + vMove2.y);
-				cmd->m_forwardmove = cos(flYaw) * flSpeed;
-				cmd->m_sidemove = sin(flYaw) * flSpeed;
-			}
-			else if (g_cfg.ragebot.instant_double_tap && key_binds::get().get_key_bind_state(18))
-				cmd->m_sidemove = abs(cmd->m_sidemove) > 15.f ? copysignf(450.f, cmd->m_sidemove) : 0.f;
-			else
-			{
-				cmd->m_forwardmove = 0.0f;
-				cmd->m_sidemove = 0.0f;
-			}
+			cmd->m_forwardmove = 0.0f;
+			cmd->m_sidemove = 0.0f;
 		}
 
 		auto commands_to_add = 0;

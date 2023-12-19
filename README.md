@@ -1,4 +1,5 @@
 Update v1.1.
+
 -Rewritten / improved resolver
 -Rewritten / improved animations
 -Rewritten / improved aimbot

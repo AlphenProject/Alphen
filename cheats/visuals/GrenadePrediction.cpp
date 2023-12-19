@@ -377,7 +377,7 @@ void GrenadePrediction::ResolveFlyCollisionCustom(trace_t& tr, Vector& vecVeloci
 {
 	if (tr.hit_entity)
 	{
-		if (CAutoWall::IsBreakableEntity(tr.hit_entity))
+		/*if (CAutoWall::IsBreakableEntity(tr.hit_entity))
 		{
 			auto client_class = tr.hit_entity->GetClientClass();
 
@@ -395,7 +395,7 @@ void GrenadePrediction::ResolveFlyCollisionCustom(trace_t& tr, Vector& vecVeloci
 				vecVelocity *= 0.4f;
 				return;
 			}
-		}
+		}*/
 	}
 
 	float flSurfaceElasticity = 1.0, flGrenadeElasticity = 0.45f;

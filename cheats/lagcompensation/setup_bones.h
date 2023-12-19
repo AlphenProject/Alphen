@@ -5,7 +5,6 @@ class CSetupBones
 {
 public:
 	void setup();
-	void setup_bones_server();
 	void get_skeleton();
 	void studio_build_matrices(CStudioHdr* hdr, const matrix3x4_t& worldTransform, Vector* pos, Quaternion* q, int boneMask, matrix3x4_t* out, uint32_t* boneComputed);
 	void attachment_helper();

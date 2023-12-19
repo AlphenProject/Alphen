@@ -31,7 +31,7 @@ void fakelag::Fakelag(CUserCmd* m_pcmd)
 
 	static auto fluctuate_ticks = 0;
 	static auto switch_ticks = false;
-	static auto random_factor = min(rand() % 16 + 1, g_cfg.antiaim.triggers_fakelag_amount);
+	static auto random_factor = min(rand() % 16 + 1, 5);
 
 	auto choked = m_clientstate()->iChokedCommands; //-V807
 	auto flags = engineprediction::get().backup_data.flags; //-V807
@@ -44,7 +44,7 @@ void fakelag::Fakelag(CUserCmd* m_pcmd)
 	if (weapon_info)
 		max_speed = g_ctx.globals.scoped ? weapon_info->flMaxPlayerSpeedAlt : weapon_info->flMaxPlayerSpeed;
 
-	max_choke = g_cfg.antiaim.triggers_fakelag_amount;
+	max_choke = 5;
 
 	if (m_gamerules()->m_bIsValveDS()) //-V807
 		max_choke = m_engine()->IsVoiceRecording() ? 1 : min(max_choke, 6);
@@ -65,7 +65,7 @@ void fakelag::Fakelag(CUserCmd* m_pcmd)
 	{
 		if (g_cfg.ragebot.enable && g_ctx.globals.current_weapon != -1 && !g_ctx.globals.exploits)
 		{
-			auto predicted_eye_pos = g_ctx.globals.eye_pos + engineprediction::get().backup_data.velocity * m_globals()->m_intervalpertick * (float)g_cfg.antiaim.triggers_fakelag_amount * 0.5f;
+			auto predicted_eye_pos = g_ctx.globals.eye_pos + engineprediction::get().backup_data.velocity * m_globals()->m_intervalpertick * 5 * 0.5f;
 
 			for (auto i = 1; i < m_globals()->m_maxclients; i++)
 			{
@@ -94,9 +94,9 @@ void fakelag::Fakelag(CUserCmd* m_pcmd)
 
 					if (!data.valid())
 					{
-						random_factor = min(rand() % 16 + 1, g_cfg.antiaim.triggers_fakelag_amount);
+						random_factor = min(rand() % 16 + 1, 5);
 						switch_ticks = !switch_ticks;
-						fluctuate_ticks = switch_ticks ? g_cfg.antiaim.triggers_fakelag_amount : max(g_cfg.antiaim.triggers_fakelag_amount - 2, 1);
+						fluctuate_ticks = switch_ticks ? 5 : max(5 - 2, 1);
 
 						g_ctx.send_packet = true;
 						started_peeking = true;

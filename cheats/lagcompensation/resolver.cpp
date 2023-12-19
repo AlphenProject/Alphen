@@ -1,746 +1,212 @@
 #include "animation_system.h"
 #include "..\ragebot\aim.h"
-#include "../visuals/player_esp.h"
+#include "../autowall/autowall.h"
 
-/*RESOLVER BY LAITH*/
-void CResolver::initialize(player_t* e, adjust_data* record, const float& goal_feet_yaw, const float& pitch)
+void resolver::initialize(player_t* e, adjust_data* record, const float& goal_feet_yaw, const float& pitch)
 {
-	player = e;
-	player_record = record;
+    player = e;
+    player_record = record;
 
-	original_pitch = math::normalize_pitch(pitch);
-	original_goal_feet_yaw = math::normalize_yaw(goal_feet_yaw);
-
-
+    original_goal_feet_yaw = math::normalize_yaw(goal_feet_yaw);
+    original_pitch = math::normalize_pitch(pitch);
 }
 
-void CResolver::initialize_yaw(player_t* e, adjust_data* record)
+void resolver::reset()
 {
-	player = e;
+    player = nullptr;
+    player_record = nullptr;
 
-	player_record = record;
-
-	player_record->left = b_yaw(player, player->m_angEyeAngles().y, 1);
-	player_record->right = b_yaw(player, player->m_angEyeAngles().y, 2);
-	player_record->middle = b_yaw(player, player->m_angEyeAngles().y, 3);
+}
+float_t get_backward_side(player_t* player)
+{
+    return math::calculate_angle(player->m_vecOrigin(), player->m_vecOrigin()).y;
 }
 
-void CResolver::reset()
+static auto resolve_update_animations(player_t* e)
 {
-	player = nullptr;
-	player_record = nullptr;
-
-	side = false;
-	fake = false;
-
-	was_first_bruteforce = false;
-	was_second_bruteforce = false;
-
-	original_goal_feet_yaw = 0.0f;
-	original_pitch = 0.0f;
-}
-
-
-bool CResolver::IsAdjustingBalance()
-{
-
-
-	for (int i = 0; i < 15; i++)
-	{
-		const int activity = player->sequence_activity(player_record->layers[i].m_nSequence);
-		if (activity == 979)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool CResolver::is_breaking_lby(AnimationLayer cur_layer, AnimationLayer prev_layer)
-{
-	if (IsAdjustingBalance())
-	{
-		if (IsAdjustingBalance())
-		{
-			if ((prev_layer.m_flCycle != cur_layer.m_flCycle) || cur_layer.m_flWeight == 1.f)
-			{
-				return true;
-			}
-			else if (cur_layer.m_flWeight == 0.f && (prev_layer.m_flCycle > 0.92f && cur_layer.m_flCycle > 0.92f))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	return false;
-}
-
-static auto GetSmoothedVelocity = [](float min_delta, Vector a, Vector b) {
-	Vector delta = a - b;
-	float delta_length = delta.Length();
-
-	if (delta_length <= min_delta)
-	{
-		Vector result;
-
-		if (-min_delta <= delta_length)
-			return a;
-		else
-		{
-			float iradius = 1.0f / (delta_length + FLT_EPSILON);
-			return b - ((delta * iradius) * min_delta);
-		}
-	}
-	else
-	{
-		float iradius = 1.0f / (delta_length + FLT_EPSILON);
-		return b + ((delta * iradius) * min_delta);
-	}
+    e->update_clientside_animation();
 };
 
-inline float anglemod(float a)
+Vector GetHitboxPos(player_t* player, matrix3x4_t* mat, int hitbox_id)
 {
-	a = (360.f / 65536) * ((int)(a * (65536.f / 360.0f)) & 65535);
-	return a;
+    if (!player)
+        return Vector();
+
+    auto hdr = m_modelinfo()->GetStudioModel(player->GetModel());
+
+    if (!hdr)
+        return Vector();
+
+    auto hitbox_set = hdr->pHitboxSet(player->m_nHitboxSet());
+
+    if (!hitbox_set)
+        return Vector();
+
+    auto hitbox = hitbox_set->pHitbox(hitbox_id);
+
+    if (!hitbox)
+        return Vector();
+
+    Vector min, max;
+
+    math::vector_transform(hitbox->bbmin, mat[hitbox->bone], min);
+    math::vector_transform(hitbox->bbmax, mat[hitbox->bone], max);
+
+    return (min + max) * 0.5f;
 }
 
-float ApproachAngle(float target, float value, float speed)
+float_t MaxYawModificator(player_t* enemy)
 {
-	target = anglemod(target);
-	value = anglemod(value);
+    auto animstate = enemy->get_animation_state();
 
-	float delta = target - value;
+    if (!animstate)
+        return 0.0f;
 
-	if (speed < 0)
-		speed = -speed;
+    auto speedfactor = math::clamp(animstate->m_flFeetSpeedForwardsOrSideWays, 0.0f, 1.0f);
+    auto avg_speedfactor = (animstate->m_flStopToFullRunningFraction * -0.3f - 0.2f) * speedfactor + 1.0f;
 
-	if (delta < -180)
-		delta += 360;
-	else if (delta > 180)
-		delta -= 360;
+    auto duck_amount = animstate->m_fDuckAmount;
 
-	if (delta > speed)
-		value += speed;
-	else if (delta < -speed)
-		value -= speed;
-	else
-		value = target;
+    if (duck_amount)
+    {
+        auto max_velocity = math::clamp(animstate->m_flFeetSpeedUnknownForwardOrSideways, 0.0f, 1.0f);
+        auto duck_speed = duck_amount * max_velocity;
 
-	return value;
+        avg_speedfactor += duck_speed * (0.5f - avg_speedfactor);
+    }
+
+    return animstate->yaw_desync_adjustment() * avg_speedfactor;
 }
 
+float_t GetBackwardYaw(player_t* player) {
 
+    return math::calculate_angle(player->m_vecOrigin(), player->m_vecOrigin()).y;
+}
 
-float CResolver::b_yaw(player_t* player, float angle, int n)
+void resolver::resolve_yaw()
 {
+    player_info_s player_info;
+    auto choked = abs(TIME_TO_TICKS(player->m_flSimulationTime() - player->m_flOldSimulationTime()) - 1);
 
-	auto animState = player->get_animation_state();
+    if (!m_engine()->GetPlayerInfo(player->EntIndex(), &player_info))
+        return;
 
-	Vector velocity = player->m_vecVelocity();
-	float spd = velocity.LengthSqr();
-	if (spd > std::powf(1.2f * 260.0f, 2.f)) {
-		Vector velocity_normalized = velocity.Normalized();
-		velocity = velocity_normalized * (1.2f * 260.0f);
+    if (!g_ctx.local()->is_alive() || player->m_iTeamNum() == g_ctx.local()->m_iTeamNum())
+        return;
 
+    if (player->get_move_type() == MOVETYPE_LADDER || player->get_move_type() == MOVETYPE_NOCLIP)
+        return;
 
-	}
+    int playerint = player->EntIndex();
 
-	float Resolveyaw = animState->m_flGoalFeetYaw;
+    auto animstate = player->get_animation_state();
 
-	auto delta_time
-		= fmaxf(m_globals()->m_curtime - animState->m_flLastClientSideAnimationUpdateTime, 0.f);
+    float new_body_yaw_pose = 0.0f;
+    auto m_flCurrentFeetYaw = player->get_animation_state()->m_flCurrentFeetYaw;
+    auto m_flGoalFeetYaw = player->get_animation_state()->m_flGoalFeetYaw;
+    auto m_flEyeYaw = player->get_animation_state()->m_flEyeYaw;
+    float flMaxYawModifier = MaxYawModificator(player);
+    float flMinYawModifier = player->get_animation_state()->pad10[512];
+    auto anglesy = math::normalize_yaw(player->m_angEyeAngles().y - original_goal_feet_yaw);
 
-	float deltatime = fabs(delta_time);
-	float stop_to_full_running_fraction = 0.f;
-	bool is_standing = true;
-	float v25 = std::clamp(player->m_flDuckAmount() + animState->m_fLandingDuckAdditiveSomething, 0.0f, 1.0f);
-	float v26 = animState->m_fDuckAmount;
-	float v27 = deltatime * 6.0f;
-	float v28;
+    auto valid_lby = true;
 
-	// clamp
-	if ((v25 - v26) <= v27) {
-		if (-v27 <= (v25 - v26))
-			v28 = v25;
-		else
-			v28 = v26 - v27;
-	}
-	else {
-		v28 = v26 + v27;
-	}
+    auto speed = player->m_vecVelocity().Length2D();
 
-	float flDuckAmount = std::clamp(v28, 0.0f, 1.0f);
+    float m_lby = player->m_flLowerBodyYawTarget() * 0.574f;
 
-	Vector animationVelocity = velocity;
-	float speed = std::fminf(animationVelocity.Length(), 260.0f);
+    auto player_stand = player->m_vecVelocity().Length2D();
+    player_stand = 0.f;
 
-	auto weapon = player->m_hActiveWeapon().Get();
+    float m_flLastClientSideAnimationUpdateTimeDelta = 0.0f;
+    auto trace = false;
 
+    auto v54 = animstate->m_fDuckAmount;
+    auto v55 = ((((*(float*)((uintptr_t)animstate + 0x11C)) * -0.30000001) - 0.19999999) * animstate->m_flFeetSpeedForwardsOrSideWays) + 1.0f;
 
-	auto wpndata = weapon->get_csweapon_info();
+    bool bWasMovingLastUpdate = false;
+    bool bJustStartedMovingLastUpdate = false;
 
+    auto unknown_velocity = *(float*)(uintptr_t(animstate) + 0x2A4);
 
-	float flMaxMovementSpeed = 260.0f;
-	if (weapon) {
-		flMaxMovementSpeed = std::fmaxf(wpndata->flMaxPlayerSpeed, 0.001f);
-	}
+    auto first_matrix = player_record->matrixes_data.first;
+    auto second_matrix = player_record->matrixes_data.second;
+    auto central_matrix = player_record->matrixes_data.zero;
+    auto leftPose = GetHitboxPos(player, first_matrix, HITBOX_HEAD);
+    auto rightPose = GetHitboxPos(player, second_matrix, HITBOX_HEAD);
+    auto centralPose = GetHitboxPos(player, central_matrix, HITBOX_HEAD);
 
-	float flRunningSpeed = speed / (flMaxMovementSpeed * 0.520f);
-	float flDuckingSpeed_2 = speed / (flMaxMovementSpeed * 0.340f);
+    static const float resolve_list[3] = { 0.f, player->m_angEyeAngles().y + player->get_max_desync_delta(), player->m_angEyeAngles().y - player->get_max_desync_delta() };
 
-	flRunningSpeed = std::clamp(flRunningSpeed, 0.0f, 1.0f);
+    int missed_player = player->EntIndex();
 
-	float flYawModifier = (((stop_to_full_running_fraction * -0.3f) - 0.2f) * flRunningSpeed) + 1.0f;
-	if (flDuckAmount > 0.0f) {
-		float flDuckingSpeed = std::clamp(flDuckingSpeed_2, 0.0f, 1.0f);
-		flYawModifier += (flDuckAmount * flDuckingSpeed) * (0.5f - flYawModifier);
-	}
+    auto delta = math::angle_distance(animstate->m_flGoalFeetYaw, animstate->m_flEyeYaw);
 
-	float flMaxBodyYaw = 58.f * flYawModifier;
-	float flMinBodyYaw = -58.f * flYawModifier;
+    ///////////////////// [ ANIMLAYERS ] /////////////////////
+    int i = player->EntIndex();
+    AnimationLayer layers[13];
+    AnimationLayer movelayers[3][13];
+    memcpy(layers, player->get_animlayers(), player->animlayer_count() * sizeof(AnimationLayer));
 
+    if (g_ctx.globals.missed_shots[i] > 2)
+    {
+        animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y + resolve_list[g_ctx.globals.missed_shots[i] % 3]);
+    }
 
-	//float flMaxBodyYaw = (*(float*)(uintptr_t(animState) + 0x338) * flYawModifier);
-		//float flMinBodyYaw = (*(float*)(uintptr_t(animState) + 0x334) * flYawModifier);
+    if (player->m_fFlags() & FL_ONGROUND)
+    {
+        if (speed <= 1.f || player_record->layers[3].m_flWeight == layers[3].m_flWeight)
+        {
+            int m_side = 2 * (m_lby > 0.f) ? -1 : 1;
+            animstate->m_flGoalFeetYaw = (player->m_angEyeAngles().y + 58.f) * m_side;
+            if (g_ctx.globals.missed_shots[i] > 2)
+            {
+                animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y + resolve_list[g_ctx.globals.missed_shots[i] % 3]);
+            }
+        }
+        else if (speed > 1.f && (!(player_record->layers[12].m_flWeight) && (player_record->layers[6].m_flWeight == layers[6].m_flWeight)))
+        {
+            //lagcompensation::get().set(player, player_record);
+            float delta_rotate_first = abs(layers[6].m_flPlaybackRate - movelayers[0][6].m_flPlaybackRate);
+            float delta_rotate_second = abs(layers[6].m_flPlaybackRate - movelayers[2][6].m_flPlaybackRate);
+            float delta_rotate_third = abs(layers[6].m_flPlaybackRate - movelayers[1][6].m_flPlaybackRate);
 
-	float flEyeYaw = player->m_angEyeAngles().y;
-
-	float flEyeDiff = std::remainderf(flEyeYaw - Resolveyaw, 360.f);
-
-	if (flEyeDiff <= flMaxBodyYaw) {
-		if (flMinBodyYaw > flEyeDiff)
-			Resolveyaw = fabs(flMinBodyYaw) + flEyeYaw;
-	}
-	else {
-		Resolveyaw = flEyeYaw - fabs(flMaxBodyYaw);
-	}
-
-	if (speed > 0.1f || fabs(velocity.z) > 100.0f) {
-		Resolveyaw = ApproachAngle(
-			flEyeYaw,
-			Resolveyaw,
-			((stop_to_full_running_fraction * 20.0f) + 30.0f)
-			* deltatime);
-	}
-	else {
-		Resolveyaw = ApproachAngle(
-			player->m_flLowerBodyYawTarget(),
-			Resolveyaw,
-			deltatime * 100.0f);
-	}
-
-	if (stop_to_full_running_fraction > 0.0 && stop_to_full_running_fraction < 1.0)
-	{
-		const auto interval = m_globals()->m_intervalpertick * 2.f;
-
-		if (is_standing)
-			stop_to_full_running_fraction = stop_to_full_running_fraction - interval;
-		else
-			stop_to_full_running_fraction = interval + stop_to_full_running_fraction;
-
-		stop_to_full_running_fraction = std::clamp(stop_to_full_running_fraction, 0.f, 1.f);
-	}
-
-	if (speed > 135.2f && is_standing)
-	{
-		stop_to_full_running_fraction = fmaxf(stop_to_full_running_fraction, .0099999998f);
-		is_standing = false;
-	}
-
-	if (speed < 135.2f && !is_standing)
-	{
-		stop_to_full_running_fraction = fminf(stop_to_full_running_fraction, .99000001f);
-		is_standing = true;
-	}
-
-	//float Left = flEyeYaw + flMinBodyYaw;
-	//float Right = flEyeYaw + flMaxBodyYaw;
-	float gfy = Resolveyaw;
-	//brute_yaw = std::remainderf(brute_yaw, 360.f);
-
-	if (n == 1)
-		return flMinBodyYaw;
-	else if (n == 2)
-		return flMaxBodyYaw;
-	else if (n == 3)
-		return flEyeYaw;
-
-	if (n == 4)
-	{
-		return speed;
-	}// get player speed
-
+            if (delta_rotate_first < delta_rotate_second || delta_rotate_second <= delta_rotate_third || delta_rotate_second)
+            {
+                if (delta_rotate_first >= delta_rotate_third && delta_rotate_second > delta_rotate_third && !(delta_rotate_third))
+                {
+                    animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y + player->get_max_desync_delta());
+                    switch (g_ctx.globals.missed_shots[i] % 2)
+                    {
+                    case 0:    animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y - player->get_max_desync_delta());
+                        break;
+                    case 1:
+                        animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y + resolve_list[g_ctx.globals.missed_shots[i] % 3]);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y - player->get_max_desync_delta());
+                switch (g_ctx.globals.missed_shots[i] % 2)
+                {
+                case 0:    animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y + player->get_max_desync_delta());
+                    break;
+                case 1:
+                    animstate->m_flGoalFeetYaw = math::normalize_yaw(player->m_angEyeAngles().y + resolve_list[g_ctx.globals.missed_shots[i] % 3]);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    }   ///////////////////// [ ANIMLAYERS ] /////////////////////
 }
 
-
-bool CResolver::is_slow_walking()
+float resolver::resolve_pitch()
 {
-	auto entity = player;
-	//float large = 0;
-	float velocity_2D[64], old_velocity_2D[64];
-	if (entity->m_vecVelocity().Length2D() != velocity_2D[entity->EntIndex()] && entity->m_vecVelocity().Length2D() != NULL) {
-		old_velocity_2D[entity->EntIndex()] = velocity_2D[entity->EntIndex()];
-		velocity_2D[entity->EntIndex()] = entity->m_vecVelocity().Length2D();
-	}
-	//if (large == 0)return false;
-	Vector velocity = entity->m_vecVelocity();
-	Vector direction = entity->m_angEyeAngles();
-
-	float speed = velocity.Length();
-	direction.y = entity->m_angEyeAngles().y - direction.y;
-	//method 1
-	if (velocity_2D[entity->EntIndex()] > 1) {
-		int tick_counter[64];
-		if (velocity_2D[entity->EntIndex()] == old_velocity_2D[entity->EntIndex()])
-			tick_counter[entity->EntIndex()] += 1;
-		else
-			tick_counter[entity->EntIndex()] = 0;
-
-		while (tick_counter[entity->EntIndex()] > (1 / m_globals()->m_intervalpertick) * fabsf(0.1f))//should give use 100ms in ticks if their speed stays the same for that long they are definetely up to something..
-			return true;
-	}
-
-
-	return false;
+    return original_pitch;
 }
-int last_ticks[65];
-int CResolver::GetChokedPackets() {
-	auto ticks = TIME_TO_TICKS(player->m_flSimulationTime() - player->m_flOldSimulationTime());
-	if (ticks == 0 && last_ticks[player->EntIndex()] > 0) {
-		return last_ticks[player->EntIndex()] - 1;
-	}
-	else {
-		last_ticks[player->EntIndex()] = ticks;
-		return ticks;
-	}
-}
-void CResolver::layer_test()
-{
-	player_record->type = LAYERS;
-
-	float center = (abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[0][6].m_flPlaybackRate)) * 1000.f;
-	float positive_full = (abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[1][6].m_flPlaybackRate)) * 1000.f;
-	float negative_full = (abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[2][6].m_flPlaybackRate)) * 1000.f;
-	float positive_40 = (abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[3][6].m_flPlaybackRate)) * 1000.f;
-	float negative_40 = (abs(player_record->layers[6].m_flPlaybackRate - resolver_layers[4][6].m_flPlaybackRate)) * 1000.f;
-
-	if ((positive_full > center && negative_full <= center) || (positive_40 > center && negative_40 <= center))
-		player_record->curSide = LEFT;
-
-
-	else if ((negative_full > center && positive_full <= center) || (negative_40 > center && positive_40 <= center))
-		player_record->curSide = RIGHT;
-
-	else
-		get_side_trace();
-
-
-}
-
-float angle_diff_onetap(float a1, float a2)
-{
-	float i;
-
-	for (; a1 > 180.0f; a1 = a1 - 180.0f)
-		;
-	for (; 180.0f > a1; a1 = a1 + 360.0f)
-		;
-	for (; a2 > 180.0f; a2 = a2 - 360.0f)
-		;
-	for (; 180.0f > a2; a2 = a2 + 360.0f)
-		;
-	for (i = a2 - a1; i > 180.0f; i = i - 360.0f)
-		;
-	for (; 180.0f > i; i = i + 360.0f)
-		;
-	return i;
-}
-void CResolver::get_side_standing()
-{
-	player_record->type = LBY;
-	float EyeDelta = math::normalize_yaw(player->m_angEyeAngles().y - original_goal_feet_yaw);
-
-	if (fabs(EyeDelta) > 25.0f)
-	{
-
-		if (EyeDelta > 25.0f)
-			player_record->curSide = RIGHT;
-
-		else if (EyeDelta < -25.0f)
-			player_record->curSide = LEFT;
-	}
-	else
-		get_side_trace();
-}
-
-
-float get_backward_side(player_t* player)
-{
-	return math::calculate_angle(g_ctx.local()->m_vecOrigin(), player->m_vecOrigin()).y;
-}
-
-
-void CResolver::detect_side()
-{
-	player_record->type = ENGINE;
-	/* externs */
-	Vector src3D, dst3D, forward, right, up, src, dst;
-	float back_two, right_two, left_two;
-	CGameTrace tr;
-	CTraceFilter filter;
-
-	/* angle vectors */
-	math::angle_vectors(Vector(0, get_backward_side(player), 0), &forward, &right, &up);
-
-	/* filtering */
-	filter.pSkip = player;
-	src3D = player->get_shoot_position();
-	dst3D = src3D + (forward * 384);
-
-	/* back engine tracers */
-	m_trace()->TraceRay(Ray_t(src3D, dst3D), MASK_SHOT, &filter, &tr);
-	back_two = (tr.endpos - tr.startpos).Length();
-
-	/* right engine tracers */
-	m_trace()->TraceRay(Ray_t(src3D + right * 35, dst3D + right * 35), MASK_SHOT, &filter, &tr);
-	right_two = (tr.endpos - tr.startpos).Length();
-
-	/* left engine tracers */
-	m_trace()->TraceRay(Ray_t(src3D - right * 35, dst3D - right * 35), MASK_SHOT, &filter, &tr);
-	left_two = (tr.endpos - tr.startpos).Length();
-
-	/* fix side */
-	if (left_two > right_two) {
-		player_record->curSide = LEFT;
-	}
-	else if (right_two > left_two) {
-		player_record->curSide = RIGHT;
-	}
-	else
-		get_side_trace();
-}
-
-void CResolver::get_side_trace()
-{
-	auto m_side = false;
-	auto trace = false;
-	if (m_globals()->m_curtime - lock_side > 2.0f)
-	{
-		auto first_visible = util::visible(g_ctx.globals.eye_pos, player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.first), player, g_ctx.local());
-		auto second_visible = util::visible(g_ctx.globals.eye_pos, player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.second), player, g_ctx.local());
-
-		if (first_visible != second_visible)
-		{
-			trace = true;
-			m_side = second_visible;
-			lock_side = m_globals()->m_curtime;
-		}
-		else
-		{
-			auto first_position = g_ctx.globals.eye_pos.DistTo(player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.first));
-			auto second_position = g_ctx.globals.eye_pos.DistTo(player->hitbox_position_matrix(HITBOX_HEAD, player_record->matrixes_data.second));
-
-			if (fabs(first_position - second_position) > 1.0f)
-				m_side = first_position > second_position;
-		}
-	}
-	else
-		trace = true;
-
-	if (m_side)
-	{
-		player_record->type = trace ? TRACE : DIRECTIONAL;
-		player_record->curSide = RIGHT;
-	}
-	else
-	{
-		player_record->type = trace ? TRACE : DIRECTIONAL;
-		player_record->curSide = LEFT;
-	}
-}
-
-
-
-bool CResolver::DesyncDetect()
-{
-	if (!player->is_alive())
-		return false;
-	if (player->get_max_desync_delta() < 10)
-		return false;
-	if (player->m_iTeamNum() == g_ctx.local()->m_iTeamNum())
-		return false;
-	if (player->get_move_type() == MOVETYPE_NOCLIP || player->get_move_type() == MOVETYPE_LADDER)
-		return false;
-
-	return true;
-}
-
-bool CResolver::update_walk_data()
-{
-	auto e = player;
-
-
-	auto anim_layers = player_record->layers;
-	bool s_1 = false,
-		s_2 = false,
-		s_3 = false;
-
-	for (int i = 0; i < e->animlayer_count(); i++)
-	{
-		anim_layers[i] = e->get_animlayers()[i];
-		if (anim_layers[i].m_nSequence == 26 && anim_layers[i].m_flWeight < 0.47f)
-			s_1 = true;
-		if (anim_layers[i].m_nSequence == 7 && anim_layers[i].m_flWeight > 0.001f)
-			s_2 = true;
-		if (anim_layers[i].m_nSequence == 2 && anim_layers[i].m_flWeight == 0)
-			s_3 = true;
-	}
-	bool  m_fakewalking;
-	if (s_1 && s_2)
-		if (s_3)
-			m_fakewalking = true;
-		else
-			m_fakewalking = false;
-	else
-		m_fakewalking = false;
-
-	return m_fakewalking;
-}
-
-void CResolver::setmode()
-{
-	auto e = player;
-
-	//float speed = e->m_vecVelocity().Length2D();
-	float speed = b_yaw(player, player->m_angEyeAngles().y, 4);
-
-	auto cur_layer = player_record->layers;
-	auto prev_layer = player_record->previous_layers;
-
-	bool on_ground = e->m_fFlags() & FL_ONGROUND && !e->get_animation_state()->m_bInHitGroundAnimation;
-
-	bool slow_walking1 = is_slow_walking();
-	bool slow_walking2 = update_walk_data();
-
-	bool flicked_lby = abs(player_record->layers[3].m_flWeight - player_record->previous_layers[7].m_flWeight) >= 1.1f;
-	bool breaking_lby = is_breaking_lby(cur_layer[3], prev_layer[3]);
-
-
-	bool ducking = player->get_animation_state()->m_fDuckAmount && e->m_fFlags() & FL_ONGROUND && !player->get_animation_state()->m_bInHitGroundAnimation;
-
-
-
-	bool stand_anim = false;
-	if (player_record->layers[3].m_flWeight == 0.f && player_record->layers[3].m_flCycle == 0.f)
-		stand_anim = true;
-
-	bool move_anim = false;
-	//if (int(player_record->layers[6].m_flWeight * 1000.f) == int(previous_layers[6].m_flWeight * 1000.f))
-	if ((player_record->layers[6].m_flWeight * 1000.f) == (previous_layers[6].m_flWeight * 1000.f))
-		move_anim = true;
-
-	auto animstate = player->get_animation_state();
-	if (!animstate)
-		return;
-
-	auto valid_move = true;
-	if (animstate->m_velocity > 0.1f || fabs(animstate->flUpVelocity) > 100.f)
-		valid_move = animstate->m_flTimeSinceStartedMoving < 0.22f;
-
-
-	if (!on_ground)
-	{
-		player_record->curMode = AIR;
-	}
-	else if ((/*micromovement check pog*/ (speed < 3.1f && ducking) || (speed < 1.2f && !ducking)))
-	{
-		player_record->curMode = STANDING;
-
-	}
-	else if (/*micromovement check pog*/ ((speed >= 3.1f && ducking) || (speed >= 1.2f && !ducking)))
-	{
-		if ((speed >= 1.2f && speed < 134.f) && !ducking && (slow_walking1 || slow_walking2))
-			player_record->curMode = SLOW_WALKING;
-		else
-			player_record->curMode = MOVING;
-	}
-	else
-		player_record->curMode = FREESTANDING;
-}
-
-bool CResolver::MatchShot()
-{
-	// do not attempt to do this in nospread mode.
-
-	float shoot_time = -1.f;
-
-	auto weapon = player->m_hActiveWeapon();
-	if (weapon) {
-		// with logging this time was always one tick behind.
-		// so add one tick to the last shoot time.
-		shoot_time = weapon->m_fLastShotTime() + m_globals()->m_intervalpertick;
-	}
-
-	// this record has a shot on it.
-	if (TIME_TO_TICKS(shoot_time) == TIME_TO_TICKS(player->m_flSimulationTime()))
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void CResolver::final_detection()
-{
-	switch (player_record->curMode)
-	{
-	case MOVING:
-		layer_test();
-		break;
-	case STANDING:
-		get_side_standing();
-		break;
-	case FREESTANDING:
-		get_side_trace();
-		break;
-	case SLOW_WALKING:
-		layer_test();
-		break;
-
-	}
-}
-
-void CResolver::missed_shots_correction(adjust_data* record, int missed_shots)
-{
-
-	switch (missed_shots)
-	{
-	case 0:
-		restype[record->type].missed_shots_corrected[record->player->EntIndex()] = 0;
-		break;
-	case 1:
-		restype[record->type].missed_shots_corrected[record->player->EntIndex()] = 1;
-		break;
-	case 2:
-		restype[record->type].missed_shots_corrected[record->player->EntIndex()] = 2;
-		break;
-	case 3:
-		restype[record->type].missed_shots_corrected[record->player->EntIndex()] = 3;
-		break;
-	}
-}
-
-
-void CResolver::resolve_desync()
-{
-	if (!DesyncDetect())
-	{
-		player_record->side = RESOLVER_ORIGINAL;
-		player_record->desync_amount = 0;
-		player_record->curMode = NO_MODE;
-		player_record->curSide = NO_SIDE;
-		return;
-	}
-	auto e = player;
-	//
-	auto negative = player_record->left;
-	auto positive = player_record->right;
-	auto gfy = player_record->middle;
-	//
-
-	bool mside;
-	auto pWeapon = player->m_hActiveWeapon();
-	auto simtime = player->m_flSimulationTime();
-	auto oldsimtime = player->m_flOldSimulationTime();
-	float m_flLastShotTime;
-	bool m_shot;
-	m_flLastShotTime = pWeapon ? pWeapon->m_fLastShotTime() : 0.f;
-	m_shot = m_flLastShotTime > oldsimtime && m_flLastShotTime <= simtime;
-
-	setmode();
-
-	if (m_flLastShotTime <= simtime && m_shot || MatchShot())
-	{
-		player_record->side = RESOLVER_ON_SHOT;
-		player_record->desync_amount = 0;
-		player_record->curSide = NO_SIDE;
-		player_record->shot = true;
-		return;
-	}
-
-	if (player_record->curMode == AIR)
-	{
-		player_record->side = RESOLVER_ORIGINAL;
-		player_record->desync_amount = 0;
-		player_record->curMode = AIR;
-		player_record->curSide = NO_SIDE;
-		return;
-	}
-
-	final_detection();
-
-
-	float LowDeltaFactor = 0.45f; //testing values :3
-
-	missed_shots_correction(player_record, g_ctx.globals.missed_shots[player->EntIndex()]); // we brute each type (layers,lby...etc) seperatly :3
-
-	// start bruting if we miss baby :3
-	switch (restype[player_record->type].missed_shots_corrected[player_record->player->EntIndex()])
-	{
-	case 0:// skip :3 we resolve bellow with logic
-		break;
-	case 1:// low delta
-		g_cfg.player_list.types[player_record->type].should_flip[e->EntIndex()] = false;
-		g_cfg.player_list.types[player_record->type].low_delta[e->EntIndex()] = true;
-		break;
-	case 2:// flipped full delta
-		g_cfg.player_list.types[player_record->type].should_flip[e->EntIndex()] = true;
-		g_cfg.player_list.types[player_record->type].low_delta[e->EntIndex()] = false;
-		break;
-	case 3:// flipped low delta
-		g_cfg.player_list.types[player_record->type].should_flip[e->EntIndex()] = true;
-		g_cfg.player_list.types[player_record->type].low_delta[e->EntIndex()] = true;
-		break;
-	}
-
-	if (g_ctx.globals.missed_shots[player->EntIndex()] > 3)
-		g_ctx.globals.missed_shots[player->EntIndex()] = 0;
-
-	if (restype[player_record->type].missed_shots_corrected[player_record->player->EntIndex()] > 3)
-		restype[player_record->type].missed_shots_corrected[player_record->player->EntIndex()] = 0;
-
-	if (player_record->curSide == LEFT)
-	{
-		player_record->desync_amount = negative;
-
-		if (g_cfg.player_list.types[player_record->type].should_flip[e->EntIndex()])
-			player_record->desync_amount = positive;
-
-		if (g_cfg.player_list.types[player_record->type].low_delta[e->EntIndex()])
-			player_record->desync_amount *= LowDeltaFactor;
-	}
-
-	else if (player_record->curSide == RIGHT)
-	{
-		player_record->desync_amount = positive;
-
-		if (g_cfg.player_list.types[player_record->type].should_flip[e->EntIndex()])
-			player_record->desync_amount = negative;
-
-		if (g_cfg.player_list.types[player_record->type].low_delta[e->EntIndex()])
-			player_record->desync_amount *= LowDeltaFactor;
-	}
-
-	// for logs xD
-	player_record->flipped_s = g_cfg.player_list.types[player_record->type].should_flip[e->EntIndex()];
-	player_record->low_delta_s = g_cfg.player_list.types[player_record->type].low_delta[e->EntIndex()];
-	g_ctx.globals.mlog1[e->EntIndex()] = player_record->desync_amount;
-
-	// set player's gfy to guessed desync value :3
-	player->get_animation_state()->m_flGoalFeetYaw = math::normalize_yaw(e->m_angEyeAngles().y + player_record->desync_amount);
-
-}
-
-

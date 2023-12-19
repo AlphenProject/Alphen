@@ -1,4 +1,4 @@
-﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 #include "..\hooks.hpp"
@@ -203,7 +203,6 @@ void __cdecl hooks::Hooked_CLMove(float flAccumulatedExtraSamples, bool bFinalTi
 	{
 		for (g_ctx.globals.shift_ticks = min(g_ctx.globals.tocharge, g_ctx.globals.shift_ticks); g_ctx.globals.shift_ticks > 0; g_ctx.globals.shift_ticks--, g_ctx.globals.tocharge--)
 		{
-			aim::get().lastshifttime = m_globals()->m_realtime;
 			(clMove_fn(hooks::original_clmove)(flAccumulatedExtraSamples, bFinalTick));
 		}
 

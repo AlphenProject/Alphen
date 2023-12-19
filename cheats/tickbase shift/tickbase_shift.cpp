@@ -9,9 +9,9 @@ void tickbase::double_tap_deffensive(CUserCmd* cmd)
 	bool did_peek = false;
 	auto predicted_eye_pos = g_ctx.globals.eye_pos + engineprediction::get().backup_data.velocity * m_globals()->m_intervalpertick * 4.f;
 	bool do_defensive = false;
-	int shift_amount = 13;
+	int shift_amount = 14;
 	g_ctx.globals.should_fakelag = false;
-	if (antiaim::get().type != ANTIAIM_STAND)
+	/*if (antiaim::get().type != ANTIAIM_STAND)
 	{
 		for (auto i = 1; i < m_globals()->m_maxclients; i++)
 		{
@@ -20,13 +20,6 @@ void tickbase::double_tap_deffensive(CUserCmd* cmd)
 				continue;
 
 			if (!e || i == -1)
-				continue;
-
-			FireBulletData_t fire_data = { };
-
-			fire_data.damage = CAutoWall::GetDamage(predicted_eye_pos, g_ctx.local(), e->hitbox_position(HITBOX_HEAD), &fire_data);
-
-			if (fire_data.damage < 1)
 				continue;
 
 			did_peek = true;
@@ -40,7 +33,7 @@ void tickbase::double_tap_deffensive(CUserCmd* cmd)
 			}
 
 		}
-	}
+	}*/
 
 	if (do_defensive)
 	{
@@ -74,9 +67,9 @@ void tickbase::DoubleTap(CUserCmd* m_pcmd)
 {
 	double_tap_enabled = true;
 	//vars
-	auto shiftAmount = g_cfg.ragebot.shift_amount;
+	auto shiftAmount = 14;
 	float shiftTime = shiftAmount * m_globals()->m_intervalpertick;
-	float recharge_time = TIME_TO_TICKS(g_cfg.ragebot.recharge_time);
+	float recharge_time = TIME_TO_TICKS(0.75);
 	auto weapon = g_ctx.local()->m_hActiveWeapon();
 	g_ctx.globals.tickbase_shift = shiftAmount;
 

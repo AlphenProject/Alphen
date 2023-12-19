@@ -448,11 +448,8 @@ void __stdcall hooks::hooked_fsn(ClientFrameStage_t stage)
 					if (current_shot->impact_hit_player)
 					{
 						current_shot->shot_info.result = crypt_str("Resolver");
-						//adjust_data* lol;
-						auto s = lagcompensation::get().player_resolver[current_shot->last_target].type;
-						//++g_ctx.globals.restype[lagcompensation::get().player_resolver[current_shot->last_target].type].missed_shots[current_shot->last_target];
+
 						++g_ctx.globals.missed_shots[current_shot->last_target]; //-V807
-						
 						lagcompensation::get().player_resolver[current_shot->last_target].last_side = (resolver_side)current_shot->side;
 					
 

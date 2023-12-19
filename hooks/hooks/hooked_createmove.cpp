@@ -375,12 +375,6 @@ void __stdcall test(int sequence_number, float input_sample_frametime, bool acti
 	tickbase::get().DoubleTap(m_pcmd);
 	tickbase::get().HideShots(m_pcmd);
 
-	//if (g_cfg.misc.break_lc)
-	//misc::get().lagexploit(m_pcmd);
-
-	if (g_cfg.ragebot.defensive_doubletap)
-		tickbase::get().double_tap_deffensive(m_pcmd);
-
 	misc::get().automatic_peek(m_pcmd, g_ctx.globals.wish_angle.y);
 
 	if (!g_ctx.globals.weapon->is_non_aim())

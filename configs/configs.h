@@ -373,20 +373,13 @@ struct Config
 		bool knife_bot;
 		bool autoshoot;
 		bool double_tap;
-		int dt_types;
-		bool fast_recharging;
-		bool instant_double_tap;
-		bool defensive_doubletap;
-		bool anti_exploit; // anti defensive
+		bool anti_exploit;
 		key_bind double_tap_key;
 		bool autoscope;
 
 		key_bind safe_point_key;
 		key_bind body_aim_key;
 
-		bool use_cs_shift_amount;
-		float recharge_time;
-		int shift_amount;
 		bool optimizer;
 		key_bind onshot;
 		bool pitch_correction;
@@ -465,8 +458,6 @@ struct Config
 
 		bool flick;
 		int flicktick;
-		bool static_legs;
-		bool pitch_on_land;
 		bool lagsync;
 		bool roll_enabled;
 		float roll;
